@@ -86,7 +86,7 @@ private constructor(
     constructor(lexeme: String, line: Int) : this(IdentifierToken.Type.IDENTIFIER, lexeme, line)
 
     init {
-        require(isValidIdentifierLiteral(lexeme)) { "$lexeme is nota  valid identifier literal" }
+        require(isValidIdentifierLiteral(lexeme)) { "$lexeme is not a valid identifier literal" }
     }
 
     enum class Type : TokenType<IdentifierToken.Type> {
