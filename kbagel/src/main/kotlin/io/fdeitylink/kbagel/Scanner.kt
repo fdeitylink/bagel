@@ -154,8 +154,7 @@ internal class Scanner(private val source: String) {
     private fun peek(numCharsAhead: Int = 0) =
             if (curr + numCharsAhead >= source.length) '\u0000' else source[curr + numCharsAhead]
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun advance() = if (isAtEnd) '\u0000' else source[curr++]
+    private fun advance() = if (isAtEnd) '\u0000' else source[curr++]
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun getLexeme() = source.substring(start, curr)
