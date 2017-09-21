@@ -3,11 +3,9 @@ package io.fdeitylink.kbagel
 internal interface TokenType <E> where E : TokenType<E>, E : Enum<E>
 
 internal sealed class Token <E> where E : TokenType<E>, E : Enum<E> {
-    abstract val type: TokenType<*>
+    abstract val type: E
     abstract val lexeme: String
     abstract val line: Int
-
-//    override fun toString() = "$type: '$lexeme'"
 }
 
 internal data class SingleCharToken
