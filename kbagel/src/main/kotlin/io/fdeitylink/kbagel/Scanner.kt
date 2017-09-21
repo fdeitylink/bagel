@@ -151,7 +151,6 @@ internal class Scanner(private val source: String) {
      * Returns the character in [source] at [curr] + [numCharsAhead]
      * @param numCharsAhead The number of characters ahead of the current character to peek. Defaults to 0.
      */
-     @Suppress("NOTHING_TO_INLINE")
     private fun peek(numCharsAhead: Int = 0) =
             if (curr + numCharsAhead >= source.length) '\u0000' else source[curr + numCharsAhead]
 
