@@ -51,5 +51,4 @@ private fun runPrompt() =
            }
         }
 
-private fun run(source: String) =
-        Scanner(source).scanTokens().forEach(::println)
+private fun run(source: String) = Scanner(source).scanTokens().forEach(::println)

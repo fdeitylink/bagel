@@ -1,7 +1,7 @@
 package io.fdeitylink.kbagel
 
 internal class Scanner(private val source: String) {
-    private val tokens = mutableListOf<Token>()
+    private val tokens = mutableListOf<Token<*>>()
 
     private inline val isAtEnd get() = curr >= source.length
 
@@ -9,23 +9,24 @@ internal class Scanner(private val source: String) {
     private var curr = 0
     private var line = 1
 
-    fun scanTokens(): List<Token> {
+    fun scanTokens(): List<Token<*>> {
         while (!isAtEnd) {
             start = curr
             scanToken()
         }
 
-        tokens += Token(TokenType.EOF, "", line)
+        tokens += EOFToken(line)
         return tokens
     }
 
     private fun scanToken() {
-        /*
-         * If the current character matches the given token (which should be
-         * a single character token), the current index is advanced and the
-         * method returns true. Returns false otherwise.
+        /**
+         * If the character pointed to by [curr] matches the given [token],
+         * [curr] is advanced and the method returns true. Returns false
+         * otherwise. Useful for checking tokens like '!=' that start with a
+         * character that is also a token.
          */
-        fun match(token: TokenType): Boolean {
+        fun match(token: SingleCharToken.Type): Boolean {
             if (isAtEnd || source[curr] != token.char) {
                 return false
             }
@@ -36,42 +37,39 @@ internal class Scanner(private val source: String) {
 
         val c = advance()
         when (c) {
-            /*
-             * Single-character tokens
-             */
-            TokenType.LEFT_PAREN.char -> addToken(TokenType.LEFT_PAREN)
-            TokenType.RIGHT_PAREN.char -> addToken(TokenType.RIGHT_PAREN)
+            SingleCharToken.Type.LEFT_PAREN.char -> tokens += SingleCharToken(SingleCharToken.Type.LEFT_PAREN, line)
+            SingleCharToken.Type.RIGHT_PAREN.char -> tokens += SingleCharToken(SingleCharToken.Type.RIGHT_PAREN, line)
 
-            TokenType.LEFT_BRACE.char -> addToken(TokenType.LEFT_BRACE)
-            TokenType.RIGHT_BRACE.char -> addToken(TokenType.RIGHT_BRACE)
+            SingleCharToken.Type.LEFT_BRACE.char -> tokens += SingleCharToken(SingleCharToken.Type.LEFT_BRACE, line)
+            SingleCharToken.Type.RIGHT_BRACE.char -> tokens += SingleCharToken(SingleCharToken.Type.RIGHT_BRACE, line)
 
-            TokenType.COMMA.char -> addToken(TokenType.COMMA)
-            TokenType.DOT.char -> addToken(TokenType.DOT)
+            SingleCharToken.Type.COMMA.char -> tokens += SingleCharToken(SingleCharToken.Type.COMMA, line)
+            SingleCharToken.Type.DOT.char -> tokens += SingleCharToken(SingleCharToken.Type.DOT, line)
 
-            TokenType.MINUS.char -> addToken(TokenType.MINUS)
-            TokenType.PLUS.char -> addToken(TokenType.PLUS)
+            SingleCharToken.Type.MINUS.char -> tokens += SingleCharToken(SingleCharToken.Type.MINUS, line)
+            SingleCharToken.Type.PLUS.char -> tokens += SingleCharToken(SingleCharToken.Type.PLUS, line)
 
-            TokenType.SEMICOLON.char -> addToken(TokenType.SEMICOLON)
+            SingleCharToken.Type.SEMICOLON.char -> tokens += SingleCharToken(SingleCharToken.Type.SEMICOLON, line)
 
-            TokenType.FORWARD_SLASH.char -> {
+            SingleCharToken.Type.FORWARD_SLASH.char -> {
                 when {
-                    match(TokenType.FORWARD_SLASH) -> {
+                    match(SingleCharToken.Type.FORWARD_SLASH) -> {
                         /*
                          * Once the next character is a newline, exit the loop.
                          * Then the next character matched will be a newline, which
                          * will cause the line counter to be incremented.
                          */
-                        while ('\n' != peek() && !isAtEnd) {
+                        while (!isAtEnd && Characters.NEWLINE.char != peek()) {
                             advance()
                         }
                     }
 
-                    match(TokenType.ASTERISK) -> {
+                    match(SingleCharToken.Type.ASTERISK) -> {
                         //Peek the next two characters and check that we haven't met the end
-                        while (!(TokenType.ASTERISK.char == peek() &&
-                                TokenType.FORWARD_SLASH.char == peek(1)) &&
-                                !isAtEnd) {
-                            if ('\n' == peek()) {
+                        while (!isAtEnd &&
+                               !(SingleCharToken.Type.ASTERISK.char == peek() &&
+                                 SingleCharToken.Type.FORWARD_SLASH.char == peek(1))) {
+                            if (Characters.NEWLINE.char == peek()) {
                                 line++
                             }
 
@@ -88,24 +86,54 @@ internal class Scanner(private val source: String) {
                         advance()
                     }
 
-                    else -> addToken(TokenType.FORWARD_SLASH)
+                    else -> tokens += SingleCharToken(SingleCharToken.Type.FORWARD_SLASH, line)
                 }
             }
 
-            TokenType.ASTERISK.char -> addToken(TokenType.ASTERISK)
+            SingleCharToken.Type.ASTERISK.char -> tokens += SingleCharToken(SingleCharToken.Type.ASTERISK, line)
 
             /*
-             * One or more character tokens
+             * Tokens with one or more characters
              */
-            TokenType.BANG.char -> addToken(if (match(TokenType.EQUAL)) TokenType.BANG_EQUAL else TokenType.BANG)
-            TokenType.EQUAL.char -> addToken(if (match(TokenType.EQUAL)) TokenType.EQUAL_EQUAL else TokenType.EQUAL)
+            SingleCharToken.Type.BANG.char -> {
+                tokens += if (match(SingleCharToken.Type.EQUAL)) {
+                    MultiCharToken(MultiCharToken.Type.BANG_EQUAL, line)
+                }
+                else {
+                    SingleCharToken(SingleCharToken.Type.BANG, line)
+                }
+            }
 
-            TokenType.GREATER.char -> addToken(if (match(TokenType.EQUAL)) TokenType.GREATER_EQUAL else TokenType.GREATER)
-            TokenType.LESS.char -> addToken(if (match(TokenType.EQUAL)) TokenType.LESS_EQUAL else TokenType.LESS)
+            SingleCharToken.Type.EQUAL.char -> {
+                tokens += if (match(SingleCharToken.Type.EQUAL)) {
+                    MultiCharToken(MultiCharToken.Type.EQUAL_EQUAL, line)
+                }
+                else {
+                    SingleCharToken(SingleCharToken.Type.EQUAL, line)
+                }
+            }
 
-            '\"' -> parseStringLiteral()
+            SingleCharToken.Type.GREATER.char -> {
+                tokens += if (match(SingleCharToken.Type.EQUAL)) {
+                    MultiCharToken(MultiCharToken.Type.GREATER_EQUAL, line)
+                }
+                else {
+                    SingleCharToken(SingleCharToken.Type.GREATER, line)
+                }
+            }
 
-            '\n' -> line++
+            SingleCharToken.Type.LESS.char -> {
+                tokens += if (match(SingleCharToken.Type.EQUAL)) {
+                    MultiCharToken(MultiCharToken.Type.LESS_EQUAL, line)
+                }
+                else {
+                    SingleCharToken(SingleCharToken.Type.LESS, line)
+                }
+            }
+
+            Characters.DOUBLE_QUOTE.char -> parseStringLiteral()
+
+            Characters.NEWLINE.char -> line++
 
             else -> {
                 if (!c.isWhitespace()) {
@@ -119,34 +147,24 @@ internal class Scanner(private val source: String) {
         }
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun isDigit(c: Char) = c in '0'..'9'
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun isAlpha(c: Char) = c in ('a'..'z') + ('A'..'Z') + '_'
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun isAlphaNumeric(c: Char) = isDigit(c) || isAlpha(c)
-
     /**
      * Returns the character in [source] at [curr] + [numCharsAhead]
      * @param numCharsAhead The number of characters ahead of the current character to peek. Defaults to 0.
      */
+     @Suppress("NOTHING_TO_INLINE")
     private fun peek(numCharsAhead: Int = 0) =
             if (curr + numCharsAhead >= source.length) '\u0000' else source[curr + numCharsAhead]
 
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun advance() = source[curr++]
+    private inline fun advance() = if (isAtEnd) '\u0000' else source[curr++]
 
-    private fun addToken(type: TokenType, literal: Any? = null) {
-        val lexeme = source.substring(start, curr)
-        tokens += Token(type, lexeme, line, literal)
-    }
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun getLexeme() = source.substring(start, curr)
 
     private fun parseStringLiteral() {
-        while ('"' != peek() && !isAtEnd) {
+        while (!isAtEnd && Characters.DOUBLE_QUOTE.char != peek()) {
             //Multi-line strings are permitted
-            if ('\n' == peek()) {
+            if (Characters.NEWLINE.char == peek()) {
                 line++
             }
 
@@ -162,7 +180,7 @@ internal class Scanner(private val source: String) {
         advance()
 
         val str = source.substring(start + 1, curr - 1)
-        addToken(TokenType.STRING, str)
+        tokens += LiteralToken(LiteralToken.Type.STRING, getLexeme(), str, line)
     }
 
     private fun parseNumberLiteral() {
@@ -179,7 +197,7 @@ internal class Scanner(private val source: String) {
         }
 
         val n = source.substring(start, curr).toDouble()
-        addToken(TokenType.NUMBER, n)
+        tokens += LiteralToken(LiteralToken.Type.NUMBER, getLexeme(), n, line)
     }
 
     private fun parseIdentifier() {
@@ -188,7 +206,7 @@ internal class Scanner(private val source: String) {
         }
 
         val ident = source.substring(start, curr)
-
-        addToken(TokenType.keywords[ident] ?: TokenType.IDENTIFIER)
+        val keyword = KeywordToken.Type.keywords[ident]
+        tokens += if (null != keyword) KeywordToken(keyword, line) else IdentifierToken(getLexeme(), line)
     }
 }
