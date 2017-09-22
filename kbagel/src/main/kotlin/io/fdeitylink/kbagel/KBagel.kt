@@ -16,7 +16,7 @@ import kotlin.system.exitProcess
 
 import io.fdeitylink.util.use
 
-internal var hadError = false
+private var hadError = false
 
 fun main(args: Array<String>) {
     when {

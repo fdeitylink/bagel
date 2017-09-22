@@ -186,7 +186,7 @@ internal class Scanner(private val source: String) {
             advance()
         }
 
-        if ('.' == peek() && isDigit(peek(1))) {
+        if (Characters.DOT.char == peek() && isDigit(peek(1))) {
             advance()
 
             while (isDigit(peek())) {
