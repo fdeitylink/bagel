@@ -47,27 +47,30 @@ private constructor(
     }
 }
 
-//TODO: Can a generic param be forced to be either String or Double and be used for literal?
-internal data class LiteralToken(
+internal data class LiteralToken<T : Any>(
     override val type: LiteralToken.Type,
     override val lexeme: String,
-    val literal: Any,
+    val literal: T,
     override val line: Int
 ) : Token<LiteralToken.Type>() {
     init {
         when (type) {
             LiteralToken.Type.STRING -> {
+                require(literal is String) { "literal is not a String (type: ${literal::class})" }
+
                 require(isValidStringLiteral(lexeme)) { "$lexeme is not a valid string literal" }
-                require(literal == lexeme.trim('\"'))
-                { "The given literal does not match the lexeme (literal: $literal, lexeme: $lexeme)" }
-                require(literal is String) { "literal is not String (type: ${literal::class})" }
+
+                require(literal == lexeme.substring(1, lexeme.lastIndex))
+                { "literal does not match lexeme (literal: $literal, lexeme: $lexeme)" }
             }
 
             LiteralToken.Type.NUMBER -> {
-                require(isValidNumberLiteral(lexeme)) { "$lexeme is not a valid number literal" }
-                require(literal == lexeme.toDouble())
-                { "The given literal does not match the lexeme (literal: $literal, lexeme: $lexeme)" }
                 require(literal is Double) { "literal is not a Double (type: ${literal::class})" }
+
+                require(isValidNumberLiteral(lexeme)) { "$lexeme is not a valid number literal" }
+
+                require(literal == lexeme.toDouble())
+                { "literal does not match lexeme (literal: $literal, lexeme: $lexeme)" }
             }
         }
     }
