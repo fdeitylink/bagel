@@ -23,7 +23,7 @@ internal sealed class Expr {
 
     data class Binary(val lOperand: Expr, val op: BinaryOperation, val rOperand: Expr) : Expr()
 
-    data class Literal(val value: Any) : Expr()
+    data class Literal(val value: Any?) : Expr()
 
     data class Grouping(val expr: Expr) : Expr()
 }
