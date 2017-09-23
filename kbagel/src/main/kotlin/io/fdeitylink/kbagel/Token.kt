@@ -1,9 +1,9 @@
 package io.fdeitylink.kbagel
 
-internal interface TokenType <E> where E : TokenType<E>, E : Enum<E>
+internal interface TokenType <T> where T : TokenType<T>, T : Enum<T>
 
-internal sealed class Token <E> where E : TokenType<E>, E : Enum<E> {
-    abstract val type: E
+internal sealed class Token <T> where T : TokenType<T>, T : Enum<T> {
+    abstract val type: T
     abstract val lexeme: String
     abstract val line: Int
 }
