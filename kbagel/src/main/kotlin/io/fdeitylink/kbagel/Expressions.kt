@@ -19,9 +19,9 @@ internal sealed class Expr {
         protected abstract fun visit(g: Grouping): R
     }
 
-    data class Unary(val op: Token<*>, val operand: Expr) : Expr()
+    data class Unary(val op: UnaryOperation, val operand: Expr) : Expr()
 
-    data class Binary(val lOperand: Expr, val op: Token<*>, val rOperand: Expr) : Expr()
+    data class Binary(val lOperand: Expr, val op: BinaryOperation, val rOperand: Expr) : Expr()
 
     data class Literal(val value: Any) : Expr()
 
