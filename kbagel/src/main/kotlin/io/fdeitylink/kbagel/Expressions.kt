@@ -7,16 +7,16 @@ internal sealed class Expr {
         @Suppress("UNCHECKED_CAST")
         fun visit(e: Expr) =
                 Visitor::class.java.declaredMethods
-                        .first { it.parameterTypes.first() == e::class.java }
+                        .first { "visit" == it.name && it.parameterTypes.first() == e::class.java }
                         .invoke(this, e) as R
 
-        abstract fun visit(u: Unary): R
+        protected abstract fun visit(u: Unary): R
 
-        abstract fun visit(b: Binary): R
+        protected abstract fun visit(b: Binary): R
 
-        abstract fun visit(l: Literal): R
+        protected abstract fun visit(l: Literal): R
 
-        abstract fun visit(g: Grouping): R
+        protected abstract fun visit(g: Grouping): R
     }
 
     data class Unary(val op: Token<*>, val operand: Expr) : Expr()
