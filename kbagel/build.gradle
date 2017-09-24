@@ -27,7 +27,7 @@ run {
     standardInput = System.in
 }
 
-mainClassName = 'io.fdeitylink.kbagel.KBagelKt'
+mainClassName = 'io.fdeitylink.kbagel.KBagel'
 
 jar {
     manifest {
