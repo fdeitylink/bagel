@@ -1,32 +1,36 @@
 package io.fdeitylink.kbagel
 
-internal interface OperationType<E> where E : OperationType<E>, E : Enum<E>
-
-internal sealed class Operation<E> where E : OperationType<E>, E : Enum<E> {
-    abstract val op : E
+internal interface Operation<O>
+where O : Operation<O>, O : Enum<O> {
+    val tokenType: TokenType<*>
 }
 
-internal data class UnaryOperation(
-    override val op: UnaryOperation.Type
-) : Operation<UnaryOperation.Type>() {
-    enum class Type : OperationType<UnaryOperation.Type> {
-        NEGATE,  NOT
+internal enum class UnaryOperation(
+    override val tokenType: SingleCharToken.Type
+) : Operation<UnaryOperation> {
+    NEGATE(SingleCharToken.Type.MINUS),
+    NOT(SingleCharToken.Type.BANG);
+
+    companion object {
+        val operators = enumValues<UnaryOperation>().associateBy(UnaryOperation::tokenType)
     }
 }
 
-internal data class BinaryOperation(
-    override val op: BinaryOperation.Type
-) : Operation<BinaryOperation.Type>() {
-    enum class Type : OperationType<BinaryOperation.Type> {
-        MINUS, PLUS,
-        DIVIDE, MULTIPLY,
+internal enum class BinaryOperation(
+    override val tokenType: TokenType<*>
+) : Operation<BinaryOperation> {
+    MINUS(SingleCharToken.Type.MINUS), PLUS(SingleCharToken.Type.PLUS),
+    DIVIDE(SingleCharToken.Type.FORWARD_SLASH), MULTIPLY(SingleCharToken.Type.ASTERISK),
 
-        ASSIGN,
+    ASSIGN(SingleCharToken.Type.EQUAL),
 
-        CHECK_EQUAL, CHECK_NOT_EQUAL,
-        CHECK_GREATER, CHECK_GREATER_EQUAL,
-        CHECK_LESS, CHECK_LESS_EQUAL,
+    CHECK_EQUAL(MultiCharToken.Type.EQUAL_EQUAL), CHECK_NOT_EQUAL(MultiCharToken.Type.BANG_EQUAL),
+    CHECK_GREATER(SingleCharToken.Type.GREATER), CHECK_GREATER_EQUAL(MultiCharToken.Type.GREATER_EQUAL),
+    CHECK_LESS(SingleCharToken.Type.LESS), CHECK_LESS_EQUAL(MultiCharToken.Type.LESS_EQUAL),
 
-        AND, OR
+    AND(KeywordToken.Type.AND), OR(KeywordToken.Type.OR);
+
+    companion object {
+        val operators = enumValues<BinaryOperation>().associateBy(BinaryOperation::tokenType)
     }
 }
