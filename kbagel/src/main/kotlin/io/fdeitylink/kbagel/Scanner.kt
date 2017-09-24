@@ -77,7 +77,7 @@ internal class Scanner(private val source: String) {
                         }
 
                         if (isAtEnd) {
-                            report(line, "Unterminated block comment")
+                            KBagel.report(line) { "Unterminated block comment" }
                             return
                         }
 
@@ -140,7 +140,7 @@ internal class Scanner(private val source: String) {
                     when {
                         isDigit(c) -> parseNumberLiteral()
                         isAlpha(c) -> parseIdentifier()
-                        else -> report(line, "Unexpected token '$c'")
+                        else -> KBagel.report(line) { "Unexpected token '$c'" }
                     }
                 }
             }
@@ -170,7 +170,7 @@ internal class Scanner(private val source: String) {
         }
 
         if (isAtEnd) {
-            report(line, "Unterminated string literal")
+            KBagel.report(line) { "Unterminated string literal" }
             return
         }
 
