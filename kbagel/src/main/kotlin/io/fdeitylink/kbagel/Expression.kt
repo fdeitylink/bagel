@@ -14,6 +14,8 @@ internal sealed class Expr {
 
         protected abstract fun visit(b: Binary): R
 
+        protected abstract fun visit(t: Ternary): R
+
         protected abstract fun visit(l: Literal): R
 
         protected abstract fun visit(g: Grouping): R
@@ -22,6 +24,8 @@ internal sealed class Expr {
     data class Unary(val op: UnaryOperation, val operand: Expr) : Expr()
 
     data class Binary(val lOperand: Expr, val op: BinaryOperation, val rOperand: Expr) : Expr()
+
+    data class Ternary(val cond: Expr, val thenBranch: Expr, val elseBranch: Expr) : Expr()
 
     //TODO: Validate by forcing value to be null, String, or Double?
     data class Literal(val value: Any?) : Expr()

@@ -1,8 +1,10 @@
 package io.fdeitylink.kbagel
 
-internal interface TokenType <T> where T : TokenType<T>, T : Enum<T>
+internal interface TokenType <T>
+where T : TokenType<T>, T : Enum<T>
 
-internal sealed class Token <T> where T : TokenType<T>, T : Enum<T> {
+internal sealed class Token <T>
+where T : TokenType<T>, T : Enum<T> {
     abstract val type: T
     abstract val lexeme: String
     abstract val line: Int
@@ -23,6 +25,7 @@ private constructor(
         MINUS('-'), PLUS('+'),
         SEMICOLON(';'),
         FORWARD_SLASH('/'), ASTERISK('*'),
+        QUESTION_MARK('?'), COLON(':'),
 
         BANG('!'),
         EQUAL('='),

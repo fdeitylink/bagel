@@ -17,6 +17,8 @@ internal class AstPrinter : Expr.Visitor<String>() {
         return parenthesize(lexeme, b.lOperand, b.rOperand)
     }
 
+    override fun visit(t: Expr.Ternary) = parenthesize("ternary", t.cond, t.thenBranch, t.elseBranch)
+
     override fun visit(l: Expr.Literal) = if (null == l.value) "nil" else l.value.toString()
 
     override fun visit(g: Expr.Grouping) = parenthesize("group", g.expr)

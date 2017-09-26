@@ -92,6 +92,10 @@ internal class Scanner(private val source: String) {
 
             SingleCharToken.Type.ASTERISK.char -> tokens += SingleCharToken(SingleCharToken.Type.ASTERISK, line)
 
+            SingleCharToken.Type.QUESTION_MARK.char -> tokens += SingleCharToken(SingleCharToken.Type.QUESTION_MARK, line)
+
+            SingleCharToken.Type.COLON.char -> tokens += SingleCharToken(SingleCharToken.Type.COLON, line)
+
             /*
              * Tokens with one or more characters
              */
