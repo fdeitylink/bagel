@@ -35,7 +35,7 @@ internal object KBagel {
     fun error(token: Token<*>, lazyMessage: () -> Any) =
             when (token.type) {
                 EOFToken.Type.EOF -> report(token.line, " at end", lazyMessage)
-                else -> report(token.line, " at '${token.lexeme}'", lazyMessage)
+                else -> report(token.line, "at '${token.lexeme}'", lazyMessage)
             }
 
     @Throws(IOException::class)
