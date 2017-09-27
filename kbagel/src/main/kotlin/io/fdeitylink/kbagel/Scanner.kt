@@ -135,15 +135,15 @@ internal class Scanner(private val source: String) {
                 }
             }
 
-            Characters.DOUBLE_QUOTE.char -> parseStringLiteral()
+            Characters.DOUBLE_QUOTE.char -> string()
 
             Characters.NEWLINE.char -> line++
 
             else -> {
                 if (!c.isWhitespace()) {
                     when {
-                        isDigit(c) -> parseNumberLiteral()
-                        isAlpha(c) -> parseIdentifier()
+                        isDigit(c) -> number()
+                        isAlpha(c) -> identifier()
                         else -> KBagel.report(line) { "Unexpected token '$c'" }
                     }
                 }
@@ -163,7 +163,7 @@ internal class Scanner(private val source: String) {
     @Suppress("NOTHING_TO_INLINE")
     private inline fun getLexeme() = source.substring(start, curr)
 
-    private fun parseStringLiteral() {
+    private fun string() {
         while (!isAtEnd && Characters.DOUBLE_QUOTE.char != peek()) {
             //Multi-line strings are permitted
             if (Characters.NEWLINE.char == peek()) {
@@ -185,7 +185,7 @@ internal class Scanner(private val source: String) {
         tokens += LiteralToken(LiteralToken.Type.STRING, getLexeme(), str, line)
     }
 
-    private fun parseNumberLiteral() {
+    private fun number() {
         while (isDigit(peek())) {
             advance()
         }
@@ -202,7 +202,7 @@ internal class Scanner(private val source: String) {
         tokens += LiteralToken(LiteralToken.Type.NUMBER, getLexeme(), n, line)
     }
 
-    private fun parseIdentifier() {
+    private fun identifier() {
         while (isAlphaNumeric(peek())) {
             advance()
         }
