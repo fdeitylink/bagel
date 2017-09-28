@@ -139,14 +139,11 @@ internal class Scanner(private val source: String) {
 
             Characters.NEWLINE.char -> line++
 
-            else -> {
-                if (!c.isWhitespace()) {
-                    when {
-                        isDigit(c) -> number()
-                        isAlpha(c) -> identifier()
-                        else -> KBagel.report(line) { "Unexpected token '$c'" }
-                    }
-                }
+            else -> when {
+                c.isWhitespace() -> return
+                isDigit(c) -> number()
+                isAlpha(c) -> identifier()
+                else -> KBagel.report(line) { "Unexpected token '$c'" }
             }
         }
     }
