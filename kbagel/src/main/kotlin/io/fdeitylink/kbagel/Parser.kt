@@ -38,7 +38,7 @@ internal class Parser(private val tokens: List<Token<*>>) {
     private inline fun expression() = equality()
 
     private fun equality() =
-            binaryLeftAssoc(Parser::comparison, MultiCharToken.Type.BANG_EQUAL, MultiCharToken.Type.EQUAL_EQUAL)
+            binaryLeftAssoc(Parser::comparison, MultiCharToken.Type.EQUAL_EQUAL, MultiCharToken.Type.BANG_EQUAL)
 
     private fun comparison() =
             binaryLeftAssoc(Parser::addition,
@@ -46,7 +46,7 @@ internal class Parser(private val tokens: List<Token<*>>) {
                             SingleCharToken.Type.LESS, MultiCharToken.Type.LESS_EQUAL)
 
     private fun addition() =
-            binaryLeftAssoc(Parser::multiplication, SingleCharToken.Type.MINUS, SingleCharToken.Type.PLUS)
+            binaryLeftAssoc(Parser::multiplication, SingleCharToken.Type.PLUS, SingleCharToken.Type.MINUS)
 
     private fun multiplication() =
             binaryLeftAssoc(Parser::unary, SingleCharToken.Type.ASTERISK, SingleCharToken.Type.FORWARD_SLASH)
@@ -64,8 +64,8 @@ internal class Parser(private val tokens: List<Token<*>>) {
 
     private fun primary() =
             when {
-                match(KeywordToken.Type.FALSE) -> Expr.Literal(false)
                 match(KeywordToken.Type.TRUE) -> Expr.Literal(true)
+                match(KeywordToken.Type.FALSE) -> Expr.Literal(false)
                 match(KeywordToken.Type.NIL) -> Expr.Literal(null)
 
                 match(LiteralToken.Type.NUMBER, LiteralToken.Type.STRING) ->
@@ -80,10 +80,10 @@ internal class Parser(private val tokens: List<Token<*>>) {
                 else -> throw error(peek()) { "Expected expression." }
             }
 
-    private fun binaryLeftAssoc(nextHighest: Parser.() -> Expr, vararg types: TokenType<*>): Expr {
+    private fun binaryLeftAssoc(nextHighest: Parser.() -> Expr, vararg tokens: TokenType<*>): Expr {
         var expr = nextHighest()
 
-        while (match(*types)) {
+        while (match(*tokens)) {
             val op = previous()
             val rOperand = nextHighest()
             expr = Expr.Binary(expr, BinaryOperation.operators[op.type]!!, rOperand)
@@ -100,8 +100,8 @@ internal class Parser(private val tokens: List<Token<*>>) {
         return ParseException(lazyMessage().toString(), token.line)
     }
 
-    private fun match(vararg types: TokenType<*>): Boolean {
-        val match = types.any { check(it) }
+    private fun match(vararg tokens: TokenType<*>): Boolean {
+        val match = tokens.any { check(it) }
         if (match) {
             advance()
         }
