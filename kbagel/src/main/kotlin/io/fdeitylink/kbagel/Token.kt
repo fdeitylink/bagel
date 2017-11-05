@@ -1,20 +1,19 @@
 package io.fdeitylink.kbagel
 
-internal interface TokenType <T>
-where T : TokenType<T>, T : Enum<T>
+internal interface TokenType<T>
+        where T : TokenType<T>, T : Enum<T>
 
-internal sealed class Token <T>
-where T : TokenType<T>, T : Enum<T> {
+internal sealed class Token<T>
+        where T : TokenType<T>, T : Enum<T> {
     abstract val type: T
     abstract val lexeme: String
     abstract val line: Int
 }
 
-internal data class SingleCharToken
-private constructor(
-    override val type: SingleCharToken.Type,
-    override val lexeme: String,
-    override val line: Int
+internal data class SingleCharToken(
+        override val type: SingleCharToken.Type,
+        override val lexeme: String,
+        override val line: Int
 ) : Token<SingleCharToken.Type>() {
     constructor(type: SingleCharToken.Type, line: Int) : this(type, type.char.toString(), line)
 
@@ -34,11 +33,10 @@ private constructor(
     }
 }
 
-internal data class MultiCharToken
-private constructor(
-    override val type: MultiCharToken.Type,
-    override val lexeme: String,
-    override val line: Int
+internal data class MultiCharToken(
+        override val type: MultiCharToken.Type,
+        override val lexeme: String,
+        override val line: Int
 ) : Token<MultiCharToken.Type>() {
     constructor(type: MultiCharToken.Type, line: Int) : this(type, type.chars, line)
 
@@ -50,11 +48,11 @@ private constructor(
     }
 }
 
-internal data class LiteralToken<T : Any>(
-    override val type: LiteralToken.Type,
-    override val lexeme: String,
-    val literal: T,
-    override val line: Int
+internal data class LiteralToken<out T : Any>(
+        override val type: LiteralToken.Type,
+        override val lexeme: String,
+        val literal: T,
+        override val line: Int
 ) : Token<LiteralToken.Type>() {
     init {
         when (type) {
@@ -83,11 +81,10 @@ internal data class LiteralToken<T : Any>(
     }
 }
 
-internal data class IdentifierToken
-private constructor(
-    override val type: IdentifierToken.Type,
-    override val lexeme: String,
-    override val line: Int
+internal data class IdentifierToken(
+        override val type: IdentifierToken.Type,
+        override val lexeme: String,
+        override val line: Int
 ) : Token<IdentifierToken.Type>() {
     constructor(lexeme: String, line: Int) : this(IdentifierToken.Type.IDENTIFIER, lexeme, line)
 
@@ -100,11 +97,10 @@ private constructor(
     }
 }
 
-internal data class KeywordToken
-private constructor(
-    override val type: KeywordToken.Type,
-    override val lexeme: String,
-    override val line: Int
+internal data class KeywordToken(
+        override val type: KeywordToken.Type,
+        override val lexeme: String,
+        override val line: Int
 ) : Token<KeywordToken.Type>() {
     constructor(type: KeywordToken.Type, line: Int) : this(type, type.chars, line)
 
@@ -122,11 +118,10 @@ private constructor(
     }
 }
 
-internal data class EOFToken
-private constructor(
-    override val type: EOFToken.Type,
-    override val lexeme: String,
-    override val line: Int
+internal data class EOFToken(
+        override val type: EOFToken.Type,
+        override val lexeme: String,
+        override val line: Int
 ) : Token<EOFToken.Type>() {
     constructor(line: Int) : this(EOFToken.Type.EOF, "", line)
 
