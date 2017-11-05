@@ -3,7 +3,7 @@ package io.fdeitylink.kbagel
 internal sealed class Expr {
     fun <R> accept(visitor: Visitor<R>) = visitor.visit(this)
 
-    abstract class Visitor<R> {
+    abstract class Visitor<out R> {
         @Suppress("UNCHECKED_CAST")
         fun visit(e: Expr) =
                 Visitor::class.java.declaredMethods
