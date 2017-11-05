@@ -23,7 +23,7 @@ internal class AstPrinter : Expr.Visitor<String>() {
 
     override fun visit(g: Expr.Grouping) = parenthesize("group", g.expr)
 
-    fun parenthesize(name: String, vararg exprs: Expr): String {
+    private fun parenthesize(name: String, vararg exprs: Expr): String {
         val builder = StringBuilder()
 
         builder.append('(').append(name)
