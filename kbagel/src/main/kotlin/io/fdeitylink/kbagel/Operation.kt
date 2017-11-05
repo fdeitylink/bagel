@@ -1,13 +1,13 @@
 package io.fdeitylink.kbagel
 
 internal interface Operation<O>
-where O : Operation<O>, O : Enum<O> {
+        where O : Operation<O>, O : Enum<O> {
     //TODO: Store Token instead of TokenType? (more information available without casting)
     val tokenType: TokenType<*>
 }
 
 internal enum class UnaryOperation(
-    override val tokenType: SingleCharToken.Type
+        override val tokenType: SingleCharToken.Type
 ) : Operation<UnaryOperation> {
     NEGATE(SingleCharToken.Type.MINUS),
     NOT(SingleCharToken.Type.BANG);
@@ -18,7 +18,7 @@ internal enum class UnaryOperation(
 }
 
 internal enum class BinaryOperation(
-    override val tokenType: TokenType<*>
+        override val tokenType: TokenType<*>
 ) : Operation<BinaryOperation> {
     MINUS(SingleCharToken.Type.MINUS), PLUS(SingleCharToken.Type.PLUS),
     DIVIDE(SingleCharToken.Type.FORWARD_SLASH), MULTIPLY(SingleCharToken.Type.ASTERISK),
