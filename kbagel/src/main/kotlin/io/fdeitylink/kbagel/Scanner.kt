@@ -96,9 +96,9 @@ internal class Scanner(private val source: String) {
 
             SingleCharToken.Type.COLON.char -> tokens += SingleCharToken(SingleCharToken.Type.COLON, line)
 
-            /*
-             * Tokens with one or more characters
-             */
+        /*
+         * Tokens with one or more characters
+         */
             SingleCharToken.Type.BANG.char -> {
                 tokens += if (match(SingleCharToken.Type.EQUAL)) {
                     MultiCharToken(MultiCharToken.Type.BANG_EQUAL, line)
