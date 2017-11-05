@@ -8,14 +8,21 @@ internal class Parser(private val tokens: List<Token<*>>) {
     private val isAtEnd get() = EOFToken.Type.EOF == peek().type
 
     fun parse(): Expr? {
-        try {
-            return lowestPrecedence()
+        return try {
+            lowestPrecedence()
         }
         catch (except: ParseException) {
-            return null
+            null
         }
     }
 
+    /**
+     * This method serves as an alias for whatever the lowest precedence operator happens to be.
+     * It allows for less code fixing when putting in an operator of lower precedence. The method
+     * also makes the intent clearer when other functions call it, as opposed to calling a method
+     * with a specific operator name that does not convey the notion of it being the lowest precedence
+     * operator.
+     */
     @Suppress("NOTHING_TO_INLINE")
     private inline fun lowestPrecedence() = comma()
 
@@ -69,7 +76,7 @@ internal class Parser(private val tokens: List<Token<*>>) {
                 match(KeywordToken.Type.NIL) -> Expr.Literal(null)
 
                 match(LiteralToken.Type.NUMBER, LiteralToken.Type.STRING) ->
-                        Expr.Literal((previous() as LiteralToken<*>).literal)
+                    Expr.Literal((previous() as LiteralToken<*>).literal)
 
                 match(SingleCharToken.Type.LEFT_PAREN) -> {
                     val expr = lowestPrecedence()
@@ -133,7 +140,7 @@ internal class Parser(private val tokens: List<Token<*>>) {
                 return
             }
 
-            when(peek().type) {
+            when (peek().type) {
                 KeywordToken.Type.CLASS, KeywordToken.Type.FUN,
                 KeywordToken.Type.VAR, KeywordToken.Type.FOR,
                 KeywordToken.Type.IF, KeywordToken.Type.WHILE,
