@@ -59,7 +59,53 @@ private constructor(
     }
 }
 
-internal data class LiteralToken<out T : Any>(
+internal sealed class LiteralToken<T, out V : Any> : Token<T>()
+        where T : TokenType<T>, T : Enum<T> {
+    abstract val value: V
+}
+
+internal data class StringLiteralToken
+private constructor(
+        override val type: StringLiteralToken.Type,
+        override val lexeme: String,
+        override val value: String,
+        override val line: Int
+) : LiteralToken<StringLiteralToken.Type, String>() {
+    constructor(lexeme: String, value: String, line: Int) : this(StringLiteralToken.Type.STRING, lexeme, value, line)
+
+    init {
+        require(isValidStringLiteral(lexeme)) { "$lexeme is not a valid string literal" }
+
+        require(value == lexeme.substring(1, lexeme.lastIndex))
+        { "value does not match lexeme (value: $value, lexeme: $lexeme)" }
+    }
+
+    enum class Type : TokenType<StringLiteralToken.Type> {
+        STRING
+    }
+}
+
+internal data class NumberLiteralToken
+private constructor(
+        override val type: NumberLiteralToken.Type,
+        override val lexeme: String,
+        override val value: Double,
+        override val line: Int
+) : LiteralToken<NumberLiteralToken.Type, Double>() {
+    constructor(lexeme: String, value: Double, line: Int) : this(NumberLiteralToken.Type.NUMBER, lexeme, value, line)
+
+    init {
+        require(isValidNumberLiteral(lexeme)) { "$lexeme is not a valid number literal" }
+
+        require(value == lexeme.toDouble()) { "value does not match lexeme (value: $value, lexeme: $lexeme)" }
+    }
+
+    enum class Type : TokenType<NumberLiteralToken.Type> {
+        NUMBER
+    }
+}
+
+/*internal data class LiteralToken<out T : Any>(
         override val type: LiteralToken.Type,
         override val lexeme: String,
         val literal: T,
@@ -90,7 +136,7 @@ internal data class LiteralToken<out T : Any>(
     enum class Type : TokenType<LiteralToken.Type> {
         STRING, NUMBER
     }
-}
+}*/
 
 internal data class IdentifierToken
 private constructor(

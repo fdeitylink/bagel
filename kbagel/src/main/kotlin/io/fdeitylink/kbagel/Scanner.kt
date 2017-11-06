@@ -179,7 +179,8 @@ internal class Scanner(private val source: String) {
         advance()
 
         val str = source.substring(start + 1, curr - 1)
-        tokens += LiteralToken(LiteralToken.Type.STRING, getLexeme(), str, line)
+        tokens += StringLiteralToken(getLexeme(), str, line)
+        //tokens += LiteralToken(LiteralToken.Type.STRING, getLexeme(), str, line)
     }
 
     private fun number() {
@@ -196,7 +197,8 @@ internal class Scanner(private val source: String) {
         }
 
         val n = source.substring(start, curr).toDouble()
-        tokens += LiteralToken(LiteralToken.Type.NUMBER, getLexeme(), n, line)
+        tokens += NumberLiteralToken(getLexeme(), n, line)
+        //tokens += LiteralToken(LiteralToken.Type.NUMBER, getLexeme(), n, line)
     }
 
     private fun identifier() {

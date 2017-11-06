@@ -69,23 +69,22 @@ internal class Parser(private val tokens: List<Token<*>>) {
         return primary()
     }
 
-    private fun primary() =
-            when {
-                match(KeywordToken.Type.TRUE) -> Expr.Literal(true)
-                match(KeywordToken.Type.FALSE) -> Expr.Literal(false)
-                match(KeywordToken.Type.NIL) -> Expr.Literal(null)
+    private fun primary() = when {
+        match(KeywordToken.Type.TRUE) -> Expr.Literal(true)
+        match(KeywordToken.Type.FALSE) -> Expr.Literal(false)
+        match(KeywordToken.Type.NIL) -> Expr.Literal(null)
 
-                match(LiteralToken.Type.NUMBER, LiteralToken.Type.STRING) ->
-                    Expr.Literal((previous() as LiteralToken<*>).literal)
+        match(NumberLiteralToken.Type.NUMBER, StringLiteralToken.Type.STRING) ->
+            Expr.Literal((previous() as LiteralToken<*, *>).value)
 
-                match(SingleCharToken.Type.LEFT_PAREN) -> {
-                    val expr = lowestPrecedence()
-                    consume(SingleCharToken.Type.RIGHT_PAREN) { "Expected ')' after expression." }
-                    Expr.Grouping(expr)
-                }
+        match(SingleCharToken.Type.LEFT_PAREN) -> {
+            val expr = lowestPrecedence()
+            consume(SingleCharToken.Type.RIGHT_PAREN) { "Expected ')' after expression." }
+            Expr.Grouping(expr)
+        }
 
-                else -> throw error(peek()) { "Expected expression." }
-            }
+        else -> throw error(peek()) { "Expected expression." }
+    }
 
     private fun binaryLeftAssoc(nextHighest: Parser.() -> Expr, vararg tokens: TokenType<*>): Expr {
         var expr = nextHighest()
