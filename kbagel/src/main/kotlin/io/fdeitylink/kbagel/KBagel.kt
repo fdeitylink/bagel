@@ -40,7 +40,8 @@ internal object KBagel {
     private fun runFile(path: String) {
         run(Files.lines(Paths.get(path), Charset.defaultCharset()).use { it.collect(Collectors.joining("\n")) })
         if (hadError) {
-            exitProcess(65) //Kill the session
+            //Kill the session
+            exitProcess(65)
         }
     }
 
@@ -51,7 +52,7 @@ internal object KBagel {
                     while (true) {
                         print("> ")
                         run(it.readLine())
-                        //Even if they made an error, it shouldn't kill the REPL session
+                        //Even if the user made an error, it shouldn't kill the REPL session
                         hadError = false
                     }
                 }
@@ -63,6 +64,6 @@ internal object KBagel {
             return
         }
 
-        expr?.let(AstPrinter::print)
+        println(expr?.let(AstPrinter::print))
     }
 }
