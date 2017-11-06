@@ -1,6 +1,6 @@
 package io.fdeitylink.kbagel
 
-internal class AstPrinter : Expr.Visitor<String>() {
+internal object AstPrinter : Expr.Visitor<String>() {
     fun print(expr: Expr) = expr.accept(this)
 
     override fun visit(u: Expr.Unary) = parenthesize(u.op.tokenType.char.toString(), u.operand)
@@ -19,7 +19,7 @@ internal class AstPrinter : Expr.Visitor<String>() {
 
     override fun visit(t: Expr.Ternary) = parenthesize("ternary", t.cond, t.thenBranch, t.elseBranch)
 
-    override fun visit(l: Expr.Literal) = if (null == l.value) "nil" else l.value.toString()
+    override fun visit(l: Expr.Literal) = l.value?.toString() ?: "nil"
 
     override fun visit(g: Expr.Grouping) = parenthesize("group", g.expr)
 

@@ -51,7 +51,8 @@ internal object KBagel {
                     while (true) {
                         print("> ")
                         run(it.readLine())
-                        hadError = false //Even if they made an error, it shouldn't kill the REPL session
+                        //Even if they made an error, it shouldn't kill the REPL session
+                        hadError = false
                     }
                 }
             }
@@ -62,6 +63,6 @@ internal object KBagel {
             return
         }
 
-        expr?.let { println(AstPrinter().print(it)) }
+        expr?.let(AstPrinter::print)
     }
 }
