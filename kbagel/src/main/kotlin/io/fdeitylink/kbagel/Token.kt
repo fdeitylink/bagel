@@ -1,3 +1,12 @@
+/*
+ * Private constructors for data classes offer no real protection because of the
+ * copy method, but I'm using them here to make it harder to accidentally use the
+ * full primary constructors as opposed to the secondary constructors, which pass
+ * in specific values to the primary constructors that are either relied upon or
+ * are the only sensible values.
+ */
+@file:Suppress("DataClassPrivateConstructor")
+
 package io.fdeitylink.kbagel
 
 internal interface TokenType<T>
@@ -10,7 +19,8 @@ internal sealed class Token<T>
     abstract val line: Int
 }
 
-internal data class SingleCharToken(
+internal data class SingleCharToken
+private constructor(
         override val type: SingleCharToken.Type,
         override val lexeme: String,
         override val line: Int
@@ -33,7 +43,8 @@ internal data class SingleCharToken(
     }
 }
 
-internal data class MultiCharToken(
+internal data class MultiCharToken
+private constructor(
         override val type: MultiCharToken.Type,
         override val lexeme: String,
         override val line: Int
@@ -81,7 +92,8 @@ internal data class LiteralToken<out T : Any>(
     }
 }
 
-internal data class IdentifierToken(
+internal data class IdentifierToken
+private constructor(
         override val type: IdentifierToken.Type,
         override val lexeme: String,
         override val line: Int
@@ -97,7 +109,8 @@ internal data class IdentifierToken(
     }
 }
 
-internal data class KeywordToken(
+internal data class KeywordToken
+private constructor(
         override val type: KeywordToken.Type,
         override val lexeme: String,
         override val line: Int
@@ -118,7 +131,8 @@ internal data class KeywordToken(
     }
 }
 
-internal data class EOFToken(
+internal data class EOFToken
+private constructor(
         override val type: EOFToken.Type,
         override val lexeme: String,
         override val line: Int
