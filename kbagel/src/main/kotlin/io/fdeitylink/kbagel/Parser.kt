@@ -9,27 +9,20 @@ internal class Parser(private val tokens: List<Token<*>>) {
 
     fun parse(): Expr? {
         return try {
-            lowestPrecedence()
+            expression()
         }
         catch (except: ParseException) {
             null
         }
     }
 
-    /**
-     * This method serves as an alias for whatever the lowest precedence operator happens to be.
-     * It allows for less code fixing when putting in an operator of lower precedence. The method
-     * also makes the intent clearer when other functions call it, as opposed to calling a method
-     * with a specific operator name that does not convey the notion of it being the lowest precedence
-     * operator.
-     */
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun lowestPrecedence() = comma()
+    private inline fun expression() = comma()
 
     private fun comma() = binaryLeftAssoc(Parser::ternary, SingleCharToken.Type.COMMA)
 
     private fun ternary(): Expr {
-        var expr = expression()
+        var expr = equality()
 
         if (match(SingleCharToken.Type.QUESTION_MARK)) {
             val thenBranch = ternary()
@@ -40,9 +33,6 @@ internal class Parser(private val tokens: List<Token<*>>) {
 
         return expr
     }
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun expression() = equality()
 
     private fun equality() =
             binaryLeftAssoc(Parser::comparison, MultiCharToken.Type.EQUAL_EQUAL, MultiCharToken.Type.BANG_EQUAL)
@@ -78,7 +68,7 @@ internal class Parser(private val tokens: List<Token<*>>) {
             Expr.Literal((previous() as LiteralToken<*, *>).value)
 
         match(SingleCharToken.Type.LEFT_PAREN) -> {
-            val expr = lowestPrecedence()
+            val expr = expression()
             consume(SingleCharToken.Type.RIGHT_PAREN) { "Expected ')' after expression." }
             Expr.Grouping(expr)
         }
