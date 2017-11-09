@@ -59,7 +59,7 @@ internal object KBagel {
             }
 
     private fun run(source: String) {
-        val expr = Parser(Scanner(source).scanTokens()).parse()
+        val expr = Parser(Scanner(source).tokens).parse()
         if (hadError) {
             return
         }

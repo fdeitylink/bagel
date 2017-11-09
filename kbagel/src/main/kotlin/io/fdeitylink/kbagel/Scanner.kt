@@ -1,22 +1,21 @@
 package io.fdeitylink.kbagel
 
 internal class Scanner(private val source: String) {
-    private val tokens = mutableListOf<Token<*>>()
-
     private inline val isAtEnd get() = curr >= source.length
 
     private var start = 0
     private var curr = 0
     private var line = 1
 
-    fun scanTokens(): List<Token<*>> {
+    private val _tokens = mutableListOf<Token<*>>()
+    val tokens: List<Token<*>> by lazy(LazyThreadSafetyMode.NONE) {
         while (!isAtEnd) {
             start = curr
             scanToken()
         }
 
-        tokens += EOFToken(line)
-        return tokens
+        _tokens += EOFToken(line)
+        _tokens
     }
 
     private fun scanToken() {
@@ -53,7 +52,7 @@ internal class Scanner(private val source: String) {
                 )
                 .firstOrNull { it.char == c }
                 ?.let {
-                    tokens += SingleCharToken(it, line)
+                    _tokens += SingleCharToken(it, line)
                     return@scanToken
                 }
 
@@ -72,7 +71,7 @@ internal class Scanner(private val source: String) {
                 .entries
                 .firstOrNull { (s) -> s.char == c }
                 ?.let { (s, m) ->
-                    tokens += if (match(SingleCharToken.Type.EQUAL)) MultiCharToken(m, line) else SingleCharToken(s, line)
+                    _tokens += if (match(SingleCharToken.Type.EQUAL)) MultiCharToken(m, line) else SingleCharToken(s, line)
                     return@scanToken
                 }
 
@@ -113,7 +112,7 @@ internal class Scanner(private val source: String) {
                         advance()
                     }
 
-                    else -> tokens += SingleCharToken(SingleCharToken.Type.FORWARD_SLASH, line)
+                    else -> _tokens += SingleCharToken(SingleCharToken.Type.FORWARD_SLASH, line)
                 }
             }
 
@@ -161,8 +160,8 @@ internal class Scanner(private val source: String) {
         advance()
 
         val str = source.substring(start + 1, curr - 1)
-        tokens += StringLiteralToken(getLexeme(), str, line)
-        //tokens += LiteralToken(LiteralToken.Type.STRING, getLexeme(), str, line)
+        _tokens += StringLiteralToken(getLexeme(), str, line)
+        //_tokens += LiteralToken(LiteralToken.Type.STRING, getLexeme(), str, line)
     }
 
     private fun number() {
@@ -179,8 +178,8 @@ internal class Scanner(private val source: String) {
         }
 
         val n = source.substring(start, curr).toDouble()
-        tokens += NumberLiteralToken(getLexeme(), n, line)
-        //tokens += LiteralToken(LiteralToken.Type.NUMBER, getLexeme(), n, line)
+        _tokens += NumberLiteralToken(getLexeme(), n, line)
+        //_tokens += LiteralToken(LiteralToken.Type.NUMBER, getLexeme(), n, line)
     }
 
     private fun identifier() {
@@ -190,6 +189,6 @@ internal class Scanner(private val source: String) {
 
         val ident = source.substring(start, curr)
         val keyword = KeywordToken.Type.keywords[ident]
-        tokens += if (null != keyword) KeywordToken(keyword, line) else IdentifierToken(getLexeme(), line)
+        _tokens += if (null != keyword) KeywordToken(keyword, line) else IdentifierToken(getLexeme(), line)
     }
 }
