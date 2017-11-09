@@ -65,10 +65,11 @@ internal class Scanner(private val source: String) {
                     match(SingleCharToken.Type.FORWARD_SLASH) -> {
                         /*
                          * Once the next character is a newline, exit the loop.
-                         * Then the next character matched will be a newline, which
-                         * will cause the line counter to be incremented.
+                         * The next time this method is called, c will be the
+                         * newline character, which will cause the line counter
+                         * to be incremented.
                          */
-                        while (!isAtEnd && Characters.NEWLINE.char != peek()) {
+                        while (!isAtEnd && Characters.NEWLINE != peek()) {
                             advance()
                         }
                     }
@@ -78,7 +79,7 @@ internal class Scanner(private val source: String) {
                         while (!isAtEnd &&
                                !(SingleCharToken.Type.ASTERISK.char == peek() &&
                                  SingleCharToken.Type.FORWARD_SLASH.char == peek(1))) {
-                            if (Characters.NEWLINE.char == peek()) {
+                            if (Characters.NEWLINE == peek()) {
                                 line++
                             }
 
@@ -90,7 +91,7 @@ internal class Scanner(private val source: String) {
                             return
                         }
 
-                        //Advance once for each character that markes the end of a block comment (* and /)
+                        //Advance once for each character that marks the end of a block comment (* and /)
                         advance()
                         advance()
                     }
@@ -116,9 +117,9 @@ internal class Scanner(private val source: String) {
 
             SingleCharToken.Type.LESS.char -> comparison(SingleCharToken.Type.LESS, MultiCharToken.Type.LESS_EQUAL)
 
-            Characters.DOUBLE_QUOTE.char -> string()
+            Characters.DOUBLE_QUOTE -> string()
 
-            Characters.NEWLINE.char -> line++
+            Characters.NEWLINE -> line++
 
             else -> when {
                 c.isWhitespace() -> return
@@ -142,9 +143,9 @@ internal class Scanner(private val source: String) {
     private inline fun getLexeme() = source.substring(start, curr)
 
     private fun string() {
-        while (!isAtEnd && Characters.DOUBLE_QUOTE.char != peek()) {
+        while (!isAtEnd && Characters.DOUBLE_QUOTE != peek()) {
             //Multi-line strings are permitted
-            if (Characters.NEWLINE.char == peek()) {
+            if (Characters.NEWLINE == peek()) {
                 line++
             }
 
@@ -169,7 +170,7 @@ internal class Scanner(private val source: String) {
             advance()
         }
 
-        if (Characters.DOT.char == peek() && isDigit(peek(1))) {
+        if (Characters.DOT == peek() && isDigit(peek(1))) {
             advance()
 
             while (isDigit(peek())) {
