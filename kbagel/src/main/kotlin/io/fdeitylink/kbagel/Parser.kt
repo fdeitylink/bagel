@@ -7,8 +7,8 @@ internal class Parser(private val tokens: List<Token<*>>) {
 
     private val isAtEnd get() = EOFToken.Type.EOF == peek().type
 
-    fun parse(): Expr? {
-        return try {
+    val parsed: Expr? by lazy(LazyThreadSafetyMode.NONE) {
+        try {
             expression()
         }
         catch (except: ParseException) {
