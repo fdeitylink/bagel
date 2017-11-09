@@ -129,13 +129,21 @@ internal class Scanner(private val source: String) {
         }
     }
 
+    //TODO: Consider returning null instead of null character in peek and advance
+
     /**
-     * Returns the character in [source] at [curr] + [numCharsAhead]
+     * Returns the character in [source] at [curr] + [numCharsAhead], or the null character (not `null`) if that
+     * falls outside the bounds of [source].
+     *
      * @param numCharsAhead The number of characters ahead of the current character to peek. Defaults to 0.
      */
     private fun peek(numCharsAhead: Int = 0) =
             if (curr + numCharsAhead >= source.length) '\u0000' else source[curr + numCharsAhead]
 
+    /**
+     * Returns the character in [source] at [curr] and increments [curr] by `1`, or returns the null character
+     * (not `null`) if [isAtEnd] is `true`.
+     */
     private fun advance() = if (isAtEnd) '\u0000' else source[curr++]
 
     @Suppress("NOTHING_TO_INLINE")
@@ -161,7 +169,6 @@ internal class Scanner(private val source: String) {
 
         val str = source.substring(start + 1, curr - 1)
         _tokens += StringLiteralToken(getLexeme(), str, line)
-        //_tokens += LiteralToken(LiteralToken.Type.STRING, getLexeme(), str, line)
     }
 
     private fun number() {
@@ -179,7 +186,6 @@ internal class Scanner(private val source: String) {
 
         val n = source.substring(start, curr).toDouble()
         _tokens += NumberLiteralToken(getLexeme(), n, line)
-        //_tokens += LiteralToken(LiteralToken.Type.NUMBER, getLexeme(), n, line)
     }
 
     private fun identifier() {
