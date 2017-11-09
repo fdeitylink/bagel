@@ -35,31 +35,48 @@ internal class Scanner(private val source: String) {
             return true
         }
 
-        fun comparison(baseComparison: SingleCharToken.Type, compoundComparison: MultiCharToken.Type) {
-            tokens += if (match(SingleCharToken.Type.EQUAL)) {
-                MultiCharToken(compoundComparison, line)
-            }
-            else {
-                SingleCharToken(baseComparison, line)
-            }
-        }
-
         val c = advance()
+
+        /*
+         * Single character tokens where characters can only signify their respective tokens
+         */
+        enumValues<SingleCharToken.Type>()
+                .toList()
+                .minus(
+                        listOf(
+                                SingleCharToken.Type.FORWARD_SLASH,
+                                SingleCharToken.Type.BANG,
+                                SingleCharToken.Type.EQUAL,
+                                SingleCharToken.Type.GREATER,
+                                SingleCharToken.Type.LESS
+                        )
+                )
+                .firstOrNull { it.char == c }
+                ?.let {
+                    tokens += SingleCharToken(it, line)
+                    return@scanToken
+                }
+
+        /*
+         * Single or multi character tokens where characters can signify multiple tokens
+         * (e.g. BANG (!) or BANG_EQUAL (!=))
+         * So far this only applies for the equality and comparison operators (hence the
+         * match against EQUAL in the let block below)
+         */
+        mapOf(
+                SingleCharToken.Type.BANG to MultiCharToken.Type.BANG_EQUAL,
+                SingleCharToken.Type.EQUAL to MultiCharToken.Type.EQUAL_EQUAL,
+                SingleCharToken.Type.GREATER to MultiCharToken.Type.GREATER_EQUAL,
+                SingleCharToken.Type.LESS to MultiCharToken.Type.LESS_EQUAL
+        )
+                .entries
+                .firstOrNull { (s) -> s.char == c }
+                ?.let { (s, m) ->
+                    tokens += if (match(SingleCharToken.Type.EQUAL)) MultiCharToken(m, line) else SingleCharToken(s, line)
+                    return@scanToken
+                }
+
         when (c) {
-            SingleCharToken.Type.LEFT_PAREN.char -> tokens += SingleCharToken(SingleCharToken.Type.LEFT_PAREN, line)
-            SingleCharToken.Type.RIGHT_PAREN.char -> tokens += SingleCharToken(SingleCharToken.Type.RIGHT_PAREN, line)
-
-            SingleCharToken.Type.LEFT_BRACE.char -> tokens += SingleCharToken(SingleCharToken.Type.LEFT_BRACE, line)
-            SingleCharToken.Type.RIGHT_BRACE.char -> tokens += SingleCharToken(SingleCharToken.Type.RIGHT_BRACE, line)
-
-            SingleCharToken.Type.COMMA.char -> tokens += SingleCharToken(SingleCharToken.Type.COMMA, line)
-            SingleCharToken.Type.DOT.char -> tokens += SingleCharToken(SingleCharToken.Type.DOT, line)
-
-            SingleCharToken.Type.MINUS.char -> tokens += SingleCharToken(SingleCharToken.Type.MINUS, line)
-            SingleCharToken.Type.PLUS.char -> tokens += SingleCharToken(SingleCharToken.Type.PLUS, line)
-
-            SingleCharToken.Type.SEMICOLON.char -> tokens += SingleCharToken(SingleCharToken.Type.SEMICOLON, line)
-
             SingleCharToken.Type.FORWARD_SLASH.char -> {
                 when {
                     match(SingleCharToken.Type.FORWARD_SLASH) -> {
@@ -99,23 +116,6 @@ internal class Scanner(private val source: String) {
                     else -> tokens += SingleCharToken(SingleCharToken.Type.FORWARD_SLASH, line)
                 }
             }
-
-            SingleCharToken.Type.ASTERISK.char -> tokens += SingleCharToken(SingleCharToken.Type.ASTERISK, line)
-
-            SingleCharToken.Type.QUESTION_MARK.char -> tokens += SingleCharToken(SingleCharToken.Type.QUESTION_MARK, line)
-
-            SingleCharToken.Type.COLON.char -> tokens += SingleCharToken(SingleCharToken.Type.COLON, line)
-
-        /*
-         * Tokens with one or more characters (so far just the equality and comparison operators)
-         */
-            SingleCharToken.Type.BANG.char -> comparison(SingleCharToken.Type.BANG, MultiCharToken.Type.BANG_EQUAL)
-
-            SingleCharToken.Type.EQUAL.char -> comparison(SingleCharToken.Type.EQUAL, MultiCharToken.Type.EQUAL_EQUAL)
-
-            SingleCharToken.Type.GREATER.char -> comparison(SingleCharToken.Type.GREATER, MultiCharToken.Type.GREATER_EQUAL)
-
-            SingleCharToken.Type.LESS.char -> comparison(SingleCharToken.Type.LESS, MultiCharToken.Type.LESS_EQUAL)
 
             Characters.DOUBLE_QUOTE -> string()
 
