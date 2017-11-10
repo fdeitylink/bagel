@@ -1,7 +1,5 @@
 package io.fdeitylink.kbagel
 
-import java.text.ParseException
-
 internal class Parser(private val tokens: List<Token<*>>, private val reporter: ErrorReporter) {
     private var curr = 0
 
@@ -93,7 +91,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
 
     private fun error(token: Token<*>, lazyMessage: () -> Any): ParseException {
         reporter.report(token, lazyMessage)
-        return ParseException(lazyMessage().toString(), token.line)
+        return ParseException(token, lazyMessage)
     }
 
     private fun match(vararg tokens: TokenType<*>): Boolean {
@@ -139,4 +137,6 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
             advance()
         }
     }
+
+    private class ParseException(val token: Token<*>, lazyMessage: () -> Any) : Exception(lazyMessage().toString())
 }
