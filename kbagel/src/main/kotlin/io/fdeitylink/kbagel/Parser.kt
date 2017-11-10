@@ -7,7 +7,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
 
     private val isAtEnd get() = EOFToken.Type.EOF == peek().type
 
-    val parsed: Expr? by lazy(LazyThreadSafetyMode.NONE) {
+    val parsed by lazy(LazyThreadSafetyMode.NONE) {
         try {
             expression()
         }
@@ -135,8 +135,8 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
                 KeywordToken.Type.IF, KeywordToken.Type.WHILE,
                 KeywordToken.Type.PRINT, KeywordToken.Type.RETURN -> return
             }
-        }
 
-        advance()
+            advance()
+        }
     }
 }
