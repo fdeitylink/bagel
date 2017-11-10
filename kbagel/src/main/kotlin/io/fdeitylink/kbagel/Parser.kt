@@ -2,7 +2,7 @@ package io.fdeitylink.kbagel
 
 import java.text.ParseException
 
-internal class Parser(private val tokens: List<Token<*>>) {
+internal class Parser(private val tokens: List<Token<*>>, private val reporter: ErrorReporter) {
     private var curr = 0
 
     private val isAtEnd get() = EOFToken.Type.EOF == peek().type
@@ -92,7 +92,7 @@ internal class Parser(private val tokens: List<Token<*>>) {
             if (check(type)) advance() else throw error(peek(), lazyMessage)
 
     private fun error(token: Token<*>, lazyMessage: () -> Any): ParseException {
-        KBagel.error(token, lazyMessage)
+        reporter.report(token, lazyMessage)
         return ParseException(lazyMessage().toString(), token.line)
     }
 

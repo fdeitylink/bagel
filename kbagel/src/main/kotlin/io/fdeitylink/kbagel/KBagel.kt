@@ -17,7 +17,7 @@ import kotlin.system.exitProcess
 import io.fdeitylink.util.use
 
 internal object KBagel {
-    private var hadError = false
+    private val reporter = Reporter()
 
     @JvmStatic
     fun main(args: Array<String>) = when {
@@ -26,20 +26,10 @@ internal object KBagel {
         else -> runPrompt()
     }
 
-    fun report(line: Int, location: String = "", lazyMessage: () -> Any) {
-        System.err.println("[line $line] Error $location: ${lazyMessage()}")
-        hadError = true
-    }
-
-    fun error(token: Token<*>, lazyMessage: () -> Any) = when (token.type) {
-        EOFToken.Type.EOF -> report(token.line, " at end", lazyMessage)
-        else -> report(token.line, "at '${token.lexeme}'", lazyMessage)
-    }
-
     @Throws(IOException::class)
     private fun runFile(path: String) {
         run(Files.lines(Paths.get(path), Charset.defaultCharset()).use { it.collect(Collectors.joining("\n")) })
-        if (hadError) {
+        if (reporter.hadError) {
             //Kill the session
             exitProcess(65)
         }
@@ -53,17 +43,29 @@ internal object KBagel {
                         print("> ")
                         run(it.readLine())
                         //Even if the user made an error, it shouldn't kill the REPL session
-                        hadError = false
+                        reporter.hadError = false
                     }
                 }
             }
 
     private fun run(source: String) {
-        val expr = Parser(Scanner(source).tokens).parsed
-        if (hadError) {
+        val expr = Parser(Scanner(source, reporter).tokens, reporter).parsed
+        if (reporter.hadError) {
             return
         }
 
-        println(expr?.let(AstPrinter::print))
+        expr?.let(AstPrinter::print).also(::println)
+    }
+
+    private class Reporter : ErrorReporter() {
+        //The setter visibility modifier allows the KBagel object to access the variable
+        @Suppress("RedundantVisibilityModifier", "RedundantSetter")
+        override var hadError = false
+            public set
+
+        override fun report(line: Int, location: String, lazyMessage: () -> Any) {
+            System.err.println("[line $line] Error $location: ${lazyMessage()}")
+            hadError = true
+        }
     }
 }

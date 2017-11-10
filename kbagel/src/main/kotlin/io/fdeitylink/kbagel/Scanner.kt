@@ -1,6 +1,6 @@
 package io.fdeitylink.kbagel
 
-internal class Scanner(private val source: String) {
+internal class Scanner(private val source: String, private val reporter: ErrorReporter) {
     private inline val isAtEnd get() = curr >= source.length
 
     private var start = 0
@@ -103,7 +103,7 @@ internal class Scanner(private val source: String) {
                         }
 
                         if (isAtEnd) {
-                            KBagel.report(line) { "Unterminated block comment" }
+                            reporter.report(line) { "Unterminated block comment" }
                             return
                         }
 
@@ -124,7 +124,7 @@ internal class Scanner(private val source: String) {
                 c.isWhitespace() -> return
                 isDigit(c) -> number()
                 isAlpha(c) -> identifier()
-                else -> KBagel.report(line) { "Unexpected token '$c'" }
+                else -> reporter.report(line) { "Unexpected token '$c'" }
             }
         }
     }
@@ -160,7 +160,7 @@ internal class Scanner(private val source: String) {
         }
 
         if (isAtEnd) {
-            KBagel.report(line) { "Unterminated string literal" }
+            reporter.report(line) { "Unterminated string literal" }
             return
         }
 
