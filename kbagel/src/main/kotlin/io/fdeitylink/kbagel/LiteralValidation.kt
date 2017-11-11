@@ -11,4 +11,4 @@ internal fun isValidStringLiteral(lexeme: String) = Regex("^\"[^\"]*\"$").matche
 internal fun isValidNumberLiteral(lexeme: String) = Regex("^\\d+(?:\\.\\d+)?\$").matches(lexeme)
 
 internal fun isValidIdentifierLiteral(lexeme: String) =
-        Regex("^[a-zA-Z_][a-zA-Z_0-9]*\$").matches(lexeme) && null == KeywordToken.Type.keywords[lexeme]
+        null == KeywordToken.Type.keywords[lexeme] && Regex("^[a-zA-Z_][a-zA-Z_0-9]*\$").matches(lexeme)
