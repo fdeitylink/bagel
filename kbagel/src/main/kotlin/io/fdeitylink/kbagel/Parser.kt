@@ -57,12 +57,14 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
         return primary()
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun primary() = when {
         match(KeywordToken.Type.TRUE) -> Expr.Literal(true)
         match(KeywordToken.Type.FALSE) -> Expr.Literal(false)
-        match(KeywordToken.Type.NIL) -> Expr.Literal(null)
+        match(KeywordToken.Type.NIL) -> Expr.Literal()
 
-        match(LiteralToken.Type.NUMBER, LiteralToken.Type.STRING) -> Expr.Literal((previous() as LiteralToken<*>).value)
+        match(LiteralToken.Type.NUMBER) -> Expr.Literal((previous() as LiteralToken<Double>).value)
+        match(LiteralToken.Type.STRING) -> Expr.Literal((previous() as LiteralToken<String>).value)
 
         match(SingleCharToken.Type.LEFT_PAREN) -> {
             val expr = expression()
