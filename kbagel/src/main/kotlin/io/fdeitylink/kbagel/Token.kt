@@ -3,7 +3,9 @@
  * copy method, but I'm using them here to make it harder to accidentally use the
  * full primary constructors as opposed to the secondary constructors, which pass
  * in specific values to the primary constructors that are either relied upon or
- * are the only sensible values.
+ * are the only sensible values. I'd replace the primary constructors with the
+ * secondary ones, but then not all of the necessary fields would be used in the
+ * generated methods.
  */
 @file:Suppress("DataClassPrivateConstructor")
 
@@ -59,84 +61,36 @@ private constructor(
     }
 }
 
-internal sealed class LiteralToken<T, out V : Any> : Token<T>()
-        where T : TokenType<T>, T : Enum<T> {
-    abstract val value: V
-}
-
-internal data class StringLiteralToken
+internal data class LiteralToken<out T : Any>
 private constructor(
-        override val type: StringLiteralToken.Type,
-        override val lexeme: String,
-        override val value: String,
-        override val line: Int
-) : LiteralToken<StringLiteralToken.Type, String>() {
-    constructor(lexeme: String, value: String, line: Int) : this(StringLiteralToken.Type.STRING, lexeme, value, line)
-
-    init {
-        require(isValidStringLiteral(lexeme)) { "$lexeme is not a valid string literal" }
-
-        require(value == lexeme.substring(1, lexeme.lastIndex))
-        { "value does not match lexeme (value: $value, lexeme: $lexeme)" }
-    }
-
-    enum class Type : TokenType<StringLiteralToken.Type> {
-        STRING
-    }
-}
-
-internal data class NumberLiteralToken
-private constructor(
-        override val type: NumberLiteralToken.Type,
-        override val lexeme: String,
-        override val value: Double,
-        override val line: Int
-) : LiteralToken<NumberLiteralToken.Type, Double>() {
-    constructor(lexeme: String, value: Double, line: Int) : this(NumberLiteralToken.Type.NUMBER, lexeme, value, line)
-
-    init {
-        require(isValidNumberLiteral(lexeme)) { "$lexeme is not a valid number literal" }
-
-        require(value == lexeme.toDouble()) { "value does not match lexeme (value: $value, lexeme: $lexeme)" }
-    }
-
-    enum class Type : TokenType<NumberLiteralToken.Type> {
-        NUMBER
-    }
-}
-
-/*internal data class LiteralToken<out T : Any>(
         override val type: LiteralToken.Type,
         override val lexeme: String,
-        val literal: T,
+        val value: T,
         override val line: Int
 ) : Token<LiteralToken.Type>() {
-    init {
-        when (type) {
-            LiteralToken.Type.STRING -> {
-                require(literal is String) { "literal is not a String (type: ${literal::class})" }
+    companion object {
+        operator fun invoke(lexeme: String, value: String, line: Int): LiteralToken<String> {
+            require(isValidStringLiteral(lexeme)) { "$lexeme is not a valid string literal" }
 
-                require(isValidStringLiteral(lexeme)) { "$lexeme is not a valid string literal" }
+            require(value == lexeme.substring(1, lexeme.lastIndex))
+            { "value does not match lexeme (value: $value, lexeme: $lexeme)" }
 
-                require(literal == lexeme.substring(1, lexeme.lastIndex))
-                { "literal does not match lexeme (literal: $literal, lexeme: $lexeme)" }
-            }
+            return LiteralToken(LiteralToken.Type.STRING, lexeme, value, line)
+        }
 
-            LiteralToken.Type.NUMBER -> {
-                require(literal is Double) { "literal is not a Double (type: ${literal::class})" }
+        operator fun invoke(lexeme: String, value: Double, line: Int): LiteralToken<Double> {
+            require(isValidNumberLiteral(lexeme)) { "$lexeme is not a valid number literal" }
 
-                require(isValidNumberLiteral(lexeme)) { "$lexeme is not a valid number literal" }
+            require(value == lexeme.toDouble()) { "value does not match lexeme (value: $value, lexeme: $lexeme)" }
 
-                require(literal == lexeme.toDouble())
-                { "literal does not match lexeme (literal: $literal, lexeme: $lexeme)" }
-            }
+            return LiteralToken(LiteralToken.Type.NUMBER, lexeme, value, line)
         }
     }
 
     enum class Type : TokenType<LiteralToken.Type> {
         STRING, NUMBER
     }
-}*/
+}
 
 internal data class IdentifierToken
 private constructor(
@@ -147,7 +101,7 @@ private constructor(
     constructor(lexeme: String, line: Int) : this(IdentifierToken.Type.IDENTIFIER, lexeme, line)
 
     init {
-        require(isValidIdentifierLiteral(lexeme)) { "$lexeme is not a valid identifier literal" }
+        require(isValidIdentifier(lexeme)) { "$lexeme is not a valid identifier literal" }
     }
 
     enum class Type : TokenType<IdentifierToken.Type> {

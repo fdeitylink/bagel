@@ -8,7 +8,7 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
     private var line = 1
 
     private val _tokens = mutableListOf<Token<*>>()
-    val tokens: List<Token<*>> by lazy(LazyThreadSafetyMode.NONE) {
+    val tokens by lazy(LazyThreadSafetyMode.NONE) {
         while (!isAtEnd) {
             start = curr
             scanToken()
@@ -168,7 +168,7 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
         advance()
 
         val str = source.substring(start + 1, curr - 1)
-        _tokens += StringLiteralToken(getLexeme(), str, line)
+        _tokens += LiteralToken(getLexeme(), str, line)
     }
 
     private fun number() {
@@ -185,7 +185,7 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
         }
 
         val n = source.substring(start, curr).toDouble()
-        _tokens += NumberLiteralToken(getLexeme(), n, line)
+        _tokens += LiteralToken(getLexeme(), n, line)
     }
 
     private fun identifier() {
