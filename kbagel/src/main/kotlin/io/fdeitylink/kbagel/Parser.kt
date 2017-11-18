@@ -23,7 +23,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
         var expr = equality()
 
         if (match(SingleCharToken.Type.QUESTION_MARK)) {
-            val thenBranch = ternary()
+            val thenBranch = ternary() //Should I assign to expression() instead?
             consume(SingleCharToken.Type.COLON) { "Expected ':' after \"then branch\" of ternary statement" }
             val elseBranch = ternary()
             expr = Expr.Ternary(expr, thenBranch, elseBranch)
@@ -51,7 +51,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
             val op = previous()
             val operand = unary()
 
-            return Expr.Unary(UnaryOperation.operators[op.type]!!, operand)
+            return Expr.Unary(Expr.Unary.Op.operators[op.type]!!, operand)
         }
 
         return primary()
@@ -80,8 +80,8 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
 
         while (match(*tokens)) {
             val op = previous()
-            val rOperand = nextHighest()
-            expr = Expr.Binary(expr, BinaryOperation.operators[op.type]!!, rOperand)
+            val r = nextHighest()
+            expr = Expr.Binary(expr, Expr.Binary.Op.operators[op.type]!!, r)
         }
 
         return expr
