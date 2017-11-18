@@ -37,15 +37,11 @@ internal sealed class Expr {
             MINUS(SingleCharToken.Type.MINUS), PLUS(SingleCharToken.Type.PLUS),
             DIVIDE(SingleCharToken.Type.FORWARD_SLASH), MULTIPLY(SingleCharToken.Type.ASTERISK),
 
-            ASSIGN(SingleCharToken.Type.EQUAL),
-
             COMMA(SingleCharToken.Type.COMMA),
 
             CHECK_EQUAL(MultiCharToken.Type.EQUAL_EQUAL), CHECK_NOT_EQUAL(MultiCharToken.Type.BANG_EQUAL),
             CHECK_GREATER(SingleCharToken.Type.GREATER), CHECK_GREATER_EQUAL(MultiCharToken.Type.GREATER_EQUAL),
-            CHECK_LESS(SingleCharToken.Type.LESS), CHECK_LESS_EQUAL(MultiCharToken.Type.LESS_EQUAL),
-
-            AND(KeywordToken.Type.AND), OR(KeywordToken.Type.OR);
+            CHECK_LESS(SingleCharToken.Type.LESS), CHECK_LESS_EQUAL(MultiCharToken.Type.LESS_EQUAL);
 
             companion object {
                 val operators = Operation.operators<Binary.Op>()
