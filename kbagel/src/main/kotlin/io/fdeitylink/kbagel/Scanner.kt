@@ -146,6 +146,7 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
      */
     private fun advance() = if (isAtEnd) '\u0000' else source[curr++]
 
+    //TODO: Turn into property?
     @Suppress("NOTHING_TO_INLINE")
     private inline fun getLexeme() = source.substring(start, curr)
 
@@ -184,8 +185,8 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
             }
         }
 
-        val n = source.substring(start, curr).toDouble()
-        _tokens += LiteralToken(getLexeme(), n, line)
+        val nStr = getLexeme()
+        _tokens += LiteralToken(nStr, nStr.toDouble(), line)
     }
 
     private fun identifier() {
@@ -193,8 +194,7 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
             advance()
         }
 
-        val ident = source.substring(start, curr)
-        val keyword = KeywordToken.Type.keywords[ident]
-        _tokens += if (null != keyword) KeywordToken(keyword, line) else IdentifierToken(getLexeme(), line)
+        val ident = getLexeme()
+        _tokens += KeywordToken.Type.keywords[ident]?.let { KeywordToken(it, line) } ?: IdentifierToken(ident, line)
     }
 }
