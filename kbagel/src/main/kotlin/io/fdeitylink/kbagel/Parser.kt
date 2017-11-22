@@ -51,7 +51,8 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
             val op = previous()
             val operand = unary()
 
-            return Expr.Unary(Expr.Unary.Op.operators[op.type]!!, operand)
+            @Suppress("UNCHECKED_CAST")
+            return Expr.Unary(op as Token<SingleCharToken.Type>, operand)
         }
 
         return primary()
@@ -81,7 +82,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
         while (match(*tokens)) {
             val op = previous()
             val r = nextHighest()
-            expr = Expr.Binary(expr, Expr.Binary.Op.operators[op.type]!!, r)
+            expr = Expr.Binary(expr, op, r)
         }
 
         return expr
