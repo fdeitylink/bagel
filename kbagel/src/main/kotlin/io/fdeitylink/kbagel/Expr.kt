@@ -23,7 +23,7 @@ internal sealed class Expr {
 
     data class Unary(val op: Unary.Op, val operand: Expr) : Expr() {
         enum class Op(override val tokenType: SingleCharToken.Type) : Operation<Unary.Op> {
-            NEGATE(SingleCharToken.Type.MINUS),
+            MINUS(SingleCharToken.Type.MINUS),
             NOT(SingleCharToken.Type.BANG);
 
             companion object {
@@ -34,7 +34,7 @@ internal sealed class Expr {
 
     data class Binary(val lOperand: Expr, val op: Binary.Op, val rOperand: Expr) : Expr() {
         enum class Op(override val tokenType: TokenType<*>) : Operation<Binary.Op> {
-            MINUS(SingleCharToken.Type.MINUS), PLUS(SingleCharToken.Type.PLUS),
+            SUBTRACT(SingleCharToken.Type.MINUS), ADD(SingleCharToken.Type.PLUS),
             DIVIDE(SingleCharToken.Type.FORWARD_SLASH), MULTIPLY(SingleCharToken.Type.ASTERISK),
 
             COMMA(SingleCharToken.Type.COMMA),
