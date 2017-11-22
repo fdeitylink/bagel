@@ -96,7 +96,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
     }
 
     private fun match(vararg tokens: TokenType<*>): Boolean {
-        val match = tokens.any { check(it) }
+        val match = tokens.any(this::check)
         if (match) {
             advance()
         }
