@@ -17,7 +17,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun expression() = comma()
 
-    private fun comma() = binaryLeftAssoc(Parser::ternary, SingleCharToken.Type.COMMA)
+    private fun comma() = binaryLeftAssoc(this::ternary, SingleCharToken.Type.COMMA)
 
     private fun ternary(): Expr {
         var expr = equality()
@@ -33,18 +33,18 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
     }
 
     private fun equality() =
-            binaryLeftAssoc(Parser::comparison, MultiCharToken.Type.EQUAL_EQUAL, MultiCharToken.Type.BANG_EQUAL)
+            binaryLeftAssoc(this::comparison, MultiCharToken.Type.EQUAL_EQUAL, MultiCharToken.Type.BANG_EQUAL)
 
     private fun comparison() =
-            binaryLeftAssoc(Parser::addition,
+            binaryLeftAssoc(this::addition,
                             SingleCharToken.Type.GREATER, MultiCharToken.Type.GREATER_EQUAL,
                             SingleCharToken.Type.LESS, MultiCharToken.Type.LESS_EQUAL)
 
     private fun addition() =
-            binaryLeftAssoc(Parser::multiplication, SingleCharToken.Type.PLUS, SingleCharToken.Type.MINUS)
+            binaryLeftAssoc(this::multiplication, SingleCharToken.Type.PLUS, SingleCharToken.Type.MINUS)
 
     private fun multiplication() =
-            binaryLeftAssoc(Parser::unary, SingleCharToken.Type.ASTERISK, SingleCharToken.Type.FORWARD_SLASH)
+            binaryLeftAssoc(this::unary, SingleCharToken.Type.ASTERISK, SingleCharToken.Type.FORWARD_SLASH)
 
     private fun unary(): Expr {
         if (match(SingleCharToken.Type.BANG, SingleCharToken.Type.MINUS)) {
@@ -75,7 +75,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
         else -> throw error(peek()) { "Expected expression." }
     }
 
-    private fun binaryLeftAssoc(nextHighest: Parser.() -> Expr, vararg tokens: TokenType<*>): Expr {
+    private fun binaryLeftAssoc(nextHighest: () -> Expr, vararg tokens: TokenType<*>): Expr {
         var expr = nextHighest()
 
         while (match(*tokens)) {
