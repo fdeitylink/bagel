@@ -92,7 +92,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
 
     private fun error(token: Token<*>, lazyMessage: () -> Any): ParseException {
         reporter.report(token, lazyMessage)
-        return ParseException(token, lazyMessage)
+        return ParseException(token, lazyMessage().toString())
     }
 
     private fun match(vararg tokens: TokenType<*>): Boolean {
@@ -139,5 +139,5 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
         }
     }
 
-    private class ParseException(val token: Token<*>, lazyMessage: () -> Any) : Exception(lazyMessage().toString())
+    private class ParseException(val token: Token<*>, override val message: String) : Exception()
 }
