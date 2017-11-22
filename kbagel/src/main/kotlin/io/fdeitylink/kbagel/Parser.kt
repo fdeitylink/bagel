@@ -73,7 +73,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
             Expr.Grouping(expr)
         }
 
-        else -> throw error(peek()) { "Expected expression." }
+        else -> throw error(peek(), "Expected expression.")
     }
 
     private fun binaryLeftAssoc(nextHighest: () -> Expr, vararg tokens: TokenType<*>): Expr {
@@ -89,11 +89,11 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
     }
 
     private fun consume(type: TokenType<*>, lazyMessage: () -> Any) =
-            if (check(type)) advance() else throw error(peek(), lazyMessage)
+            if (check(type)) advance() else throw error(peek(), lazyMessage().toString())
 
-    private fun error(token: Token<*>, lazyMessage: () -> Any): ParseException {
-        reporter.report(token, lazyMessage)
-        return ParseException(token, lazyMessage().toString())
+    private fun error(token: Token<*>, message: String): ParseException {
+        reporter.report(token, message)
+        return ParseException(token, message)
     }
 
     private fun match(vararg tokens: TokenType<*>): Boolean {

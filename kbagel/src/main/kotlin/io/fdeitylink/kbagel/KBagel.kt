@@ -63,8 +63,8 @@ internal object KBagel {
         override var hadError = false
             public set
 
-        override fun report(line: Int, location: String, lazyMessage: () -> Any) {
-            System.err.println("[line $line] Error $location: ${lazyMessage()}")
+        override fun report(line: Int, message: String, location: String) {
+            System.err.println("[line $line] Error $location: $message")
             hadError = true
         }
     }

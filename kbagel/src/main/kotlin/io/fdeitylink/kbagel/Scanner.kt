@@ -103,7 +103,7 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
                         }
 
                         if (isAtEnd) {
-                            reporter.report(line) { "Unterminated block comment" }
+                            reporter.report(line, "Unterminated block comment")
                             return
                         }
 
@@ -124,7 +124,7 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
                 c.isWhitespace() -> return
                 isDigit(c) -> number()
                 isAlpha(c) -> identifier()
-                else -> reporter.report(line) { "Unexpected token '$c'" }
+                else -> reporter.report(line, "Unexpected token '$c'")
             }
         }
     }
@@ -161,7 +161,7 @@ internal class Scanner(private val source: String, private val reporter: ErrorRe
         }
 
         if (isAtEnd) {
-            reporter.report(line) { "Unterminated string literal" }
+            reporter.report(line, "Unterminated string literal")
             return
         }
 

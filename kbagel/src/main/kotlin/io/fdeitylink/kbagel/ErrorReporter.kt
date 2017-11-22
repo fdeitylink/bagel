@@ -8,11 +8,11 @@ internal abstract class ErrorReporter {
      * Reports an error with a particular token. Sets [hadError] to `true`.
      *
      * @param token The problematic token
-     * @param lazyMessage An additional message that describes the error
+     * @param message An additional message that describes the error
      */
-    open fun report(token: Token<*>, lazyMessage: () -> Any) = when (token.type) {
-        EOFToken.Type.EOF -> report(token.line, " at end", lazyMessage)
-        else -> report(token.line, " at '${token.lexeme}'", lazyMessage)
+    open fun report(token: Token<*>, message: String) = when (token.type) {
+        EOFToken.Type.EOF -> report(token.line, message, " at end")
+        else -> report(token.line, message, " at '${token.lexeme}'")
     }
 
     /**
@@ -20,7 +20,7 @@ internal abstract class ErrorReporter {
      *
      * @param line The line number in the source file of the error
      * @param location The part of the source code that is problematic
-     * @param lazyMessage An additional message that describes the error
+     * @param message An additional message that describes the error
      */
-    abstract fun report(line: Int, location: String = "", lazyMessage: () -> Any)
+    abstract fun report(line: Int, message: String, location: String = "")
 }
