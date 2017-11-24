@@ -4,6 +4,9 @@ internal abstract class ErrorReporter {
     abstract var hadError: Boolean
         protected set
 
+    abstract var hadRuntimeError: Boolean
+        protected set
+
     /**
      * Reports an error with a particular token. Sets [hadError] to `true`.
      *
@@ -23,4 +26,9 @@ internal abstract class ErrorReporter {
      * @param message An additional message that describes the error
      */
     abstract fun report(line: Int, message: String, location: String = "")
+
+    /**
+     * Reports a given [LoxRuntimeError]. Sets [hadRuntimeError] to `true`.
+     */
+    abstract fun report(err: LoxRuntimeError)
 }

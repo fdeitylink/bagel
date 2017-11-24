@@ -19,6 +19,8 @@ import io.fdeitylink.util.use
 internal object KBagel {
     private val reporter = Reporter()
 
+    private val interpreter = Interpreter(reporter)
+
     @JvmStatic
     fun main(args: Array<String>) = when {
         args.size > 1 -> println("Usage: kbagel [script]")
@@ -30,8 +32,10 @@ internal object KBagel {
     private fun runFile(path: String) {
         run(Files.lines(Paths.get(path), Charset.defaultCharset()).use { it.collect(Collectors.joining("\n")) })
         if (reporter.hadError) {
-            //Kill the session
             exitProcess(65)
+        }
+        if (reporter.hadRuntimeError) {
+            exitProcess(70)
         }
     }
 
@@ -54,18 +58,26 @@ internal object KBagel {
             return
         }
 
-        expr?.let(AstPrinter::print).also(::println)
+        expr?.let(interpreter::interpret).also(::println)
     }
 
+    //The setter visibility modifiers allows the KBagel object to access the member variables
+    @Suppress("RedundantVisibilityModifier", "RedundantSetter")
     private class Reporter : ErrorReporter() {
-        //The setter visibility modifier allows the KBagel object to access the variable
-        @Suppress("RedundantVisibilityModifier", "RedundantSetter")
         override var hadError = false
             public set
+
+        override var hadRuntimeError = false
+//            public set
 
         override fun report(line: Int, message: String, location: String) {
             System.err.println("[line $line] Error $location: $message")
             hadError = true
+        }
+
+        override fun report(err: LoxRuntimeError) {
+            System.err.println("${err.message}\n[line ${err.token.line}]")
+            hadRuntimeError = true
         }
     }
 }
