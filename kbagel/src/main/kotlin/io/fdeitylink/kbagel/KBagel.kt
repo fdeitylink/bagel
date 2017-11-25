@@ -17,9 +17,7 @@ import kotlin.system.exitProcess
 import io.fdeitylink.util.use
 
 internal object KBagel {
-    private val reporter = Reporter()
-
-    private val interpreter = Interpreter(reporter)
+    private val interpreter = Interpreter(Reporter)
 
     @JvmStatic
     fun main(args: Array<String>) = when {
@@ -31,10 +29,10 @@ internal object KBagel {
     @Throws(IOException::class)
     private fun runFile(path: String) {
         run(Files.lines(Paths.get(path), Charset.defaultCharset()).use { it.collect(Collectors.joining("\n")) })
-        if (reporter.hadScanParseError) {
+        if (Reporter.hadScanParseError) {
             exitProcess(65)
         }
-        if (reporter.hadRuntimeError) {
+        if (Reporter.hadRuntimeError) {
             exitProcess(70)
         }
     }
@@ -47,28 +45,27 @@ internal object KBagel {
                         print("> ")
                         run(it.readLine())
                         //Even if the user made an error, it shouldn't kill the REPL session
-                        reporter.hadScanParseError = false
+                        Reporter.hadScanParseError = false
                     }
                 }
             }
 
     private fun run(source: String) {
-        val expr = Parser(Scanner(source, reporter).tokens, reporter).parsed
-        if (reporter.hadScanParseError) {
+        val expr = Parser(Scanner(source, Reporter).tokens, Reporter).parsed
+        if (Reporter.hadScanParseError) {
             return
         }
 
         expr?.let(interpreter::interpret).also(::println)
     }
 
-    //The setter visibility modifiers allows the KBagel object to access the member variables
-    @Suppress("RedundantVisibilityModifier", "RedundantSetter")
-    private class Reporter : ErrorReporter() {
+    private object Reporter : ErrorReporter() {
+        //The setter visibility modifiers allows the KBagel object to access the member variables
+        @Suppress("RedundantVisibilityModifier", "RedundantSetter")
         override var hadScanParseError = false
             public set
 
         override var hadRuntimeError = false
-//            public set
 
         override fun report(line: Int, message: String, location: String) {
             System.err.println("[line $line] Error $location: $message")
