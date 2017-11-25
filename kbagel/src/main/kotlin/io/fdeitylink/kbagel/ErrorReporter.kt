@@ -1,14 +1,14 @@
 package io.fdeitylink.kbagel
 
 internal abstract class ErrorReporter {
-    abstract var hadError: Boolean
+    abstract var hadScanParseError: Boolean
         protected set
 
     abstract var hadRuntimeError: Boolean
         protected set
 
     /**
-     * Reports an error with a particular token. Sets [hadError] to `true`.
+     * Reports an error with a particular token. Sets [hadScanParseError] to `true`.
      *
      * @param token The problematic token
      * @param message An additional message that describes the error
@@ -19,7 +19,7 @@ internal abstract class ErrorReporter {
     }
 
     /**
-     * Reports a given error message. Sets [hadError] to `true`.
+     * Reports a given error message. Sets [hadScanParseError] to `true`.
      *
      * @param line The line number in the source file of the error
      * @param location The part of the source code that is problematic

@@ -31,7 +31,7 @@ internal object KBagel {
     @Throws(IOException::class)
     private fun runFile(path: String) {
         run(Files.lines(Paths.get(path), Charset.defaultCharset()).use { it.collect(Collectors.joining("\n")) })
-        if (reporter.hadError) {
+        if (reporter.hadScanParseError) {
             exitProcess(65)
         }
         if (reporter.hadRuntimeError) {
@@ -47,14 +47,14 @@ internal object KBagel {
                         print("> ")
                         run(it.readLine())
                         //Even if the user made an error, it shouldn't kill the REPL session
-                        reporter.hadError = false
+                        reporter.hadScanParseError = false
                     }
                 }
             }
 
     private fun run(source: String) {
         val expr = Parser(Scanner(source, reporter).tokens, reporter).parsed
-        if (reporter.hadError) {
+        if (reporter.hadScanParseError) {
             return
         }
 
@@ -64,7 +64,7 @@ internal object KBagel {
     //The setter visibility modifiers allows the KBagel object to access the member variables
     @Suppress("RedundantVisibilityModifier", "RedundantSetter")
     private class Reporter : ErrorReporter() {
-        override var hadError = false
+        override var hadScanParseError = false
             public set
 
         override var hadRuntimeError = false
@@ -72,7 +72,7 @@ internal object KBagel {
 
         override fun report(line: Int, message: String, location: String) {
             System.err.println("[line $line] Error $location: $message")
-            hadError = true
+            hadScanParseError = true
         }
 
         override fun report(err: LoxRuntimeError) {
