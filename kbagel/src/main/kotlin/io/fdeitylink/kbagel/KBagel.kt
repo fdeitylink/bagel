@@ -17,6 +17,9 @@ import kotlin.system.exitProcess
 import io.fdeitylink.util.use
 
 internal object KBagel {
+    private const val scanParseErrorCode = 65
+    private const val runtimeErrorCode = 70
+
     private val interpreter = Interpreter(Reporter)
 
     @JvmStatic
@@ -30,10 +33,10 @@ internal object KBagel {
     private fun runFile(path: String) {
         run(Files.lines(Paths.get(path), Charset.defaultCharset()).use { it.collect(Collectors.joining("\n")) })
         if (Reporter.hadScanParseError) {
-            exitProcess(65)
+            exitProcess(scanParseErrorCode)
         }
         if (Reporter.hadRuntimeError) {
-            exitProcess(70)
+            exitProcess(runtimeErrorCode)
         }
     }
 
