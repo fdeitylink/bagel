@@ -104,10 +104,10 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
 
     private fun checkIsNumber(l: Any?, token: Token<*>, r: Any?) {
         if (l !is Double) {
-            throw LoxRuntimeError(token, "Left operand is not a number (l: $l)")
+            throw LoxRuntimeError(token, "Left operand is not a number (l: $l, r: $r)")
         }
         if (r !is Double) {
-            throw LoxRuntimeError(token, "Right operand is not a number (r: $r)")
+            throw LoxRuntimeError(token, "Right operand is not a number (l: $l, r: $r)")
         }
     }
 
