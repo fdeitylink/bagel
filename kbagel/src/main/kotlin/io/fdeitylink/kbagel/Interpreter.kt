@@ -30,6 +30,15 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
         val l = eval(b.lOperand)
         val r = eval(b.rOperand)
 
+        fun checkOperandsAreNumbers() {
+            if (l !is Double) {
+                throw LoxRuntimeError(b.token, "Left operand is not a number (l: $l, r: $r)")
+            }
+            if (r !is Double) {
+                throw LoxRuntimeError(b.token, "Right operand is not a number (l: $l, r: $r)")
+            }
+        }
+
         mapOf(
                 Expr.Binary.Op.CHECK_GREATER to { x: Int -> x > 0 },
                 Expr.Binary.Op.CHECK_GREATER_EQUAL to { x: Int -> x >= 0 },
@@ -66,16 +75,16 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
                 }
             }
             Expr.Binary.Op.SUBTRACT -> {
-                checkIsNumber(l, b.token, r)
+                checkOperandsAreNumbers()
                 l as Double - r as Double
             }
 
             Expr.Binary.Op.MULTIPLY -> {
-                checkIsNumber(l, b.token, r)
+                checkOperandsAreNumbers()
                 l as Double * r as Double
             }
             Expr.Binary.Op.DIVIDE -> {
-                checkIsNumber(l, b.token, r)
+                checkOperandsAreNumbers()
                 l as Double / r as Double
             }
 
@@ -95,15 +104,6 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
     override fun visit(g: Expr.Grouping) = eval(g.expr)
 
     private fun eval(expr: Expr) = expr.accept(this)
-
-    private fun checkIsNumber(l: Any?, token: Token<*>, r: Any?) {
-        if (l !is Double) {
-            throw LoxRuntimeError(token, "Left operand is not a number (l: $l, r: $r)")
-        }
-        if (r !is Double) {
-            throw LoxRuntimeError(token, "Right operand is not a number (l: $l, r: $r)")
-        }
-    }
 
     private val Any?.isTruthy
         get() = when (this) {
