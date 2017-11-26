@@ -37,12 +37,11 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
                 else if (l is String && r is String) {
                     l + r
                 }
-                //TODO: Trim ".0" from double when appending
                 else if (l is String && r is Double) {
-                    l + r
+                    l + r.toString().removeSuffix(".0")
                 }
                 else if (l is Double && r is String) {
-                    l.toString() + r
+                    l.toString().removeSuffix(".0") + r
                 }
                 else {
                     throw LoxRuntimeError(b.token, "Operands must be two numbers or two strings (l: $l, r: $r)")
