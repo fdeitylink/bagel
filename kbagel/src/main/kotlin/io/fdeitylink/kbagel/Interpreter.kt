@@ -28,6 +28,22 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
         val l = eval(b.lOperand)
         val r = eval(b.rOperand)
 
+        mapOf(
+                Expr.Binary.Op.CHECK_GREATER to { x: Int -> x > 0 },
+                Expr.Binary.Op.CHECK_GREATER_EQUAL to { x: Int -> x >= 0 },
+                Expr.Binary.Op.CHECK_LESS to { x: Int -> x < 0 },
+                Expr.Binary.Op.CHECK_LESS_EQUAL to { x: Int -> x <= 0 }
+        )
+                .entries
+                .firstOrNull { (op) -> op == b.op }
+                ?.let { (_, pred) ->
+                    return@visit when {
+                        l is String && r is String -> pred(l.compareTo(r))
+                        l is Double && r is Double -> pred(l.compareTo(r))
+                        else -> throw LoxRuntimeError(b.token, "Operands must be two numbers or two strings (l: $l, r: $r)")
+                    }
+                }
+
         return when (b.op) {
             Expr.Binary.Op.ADD -> {
                 //TODO: Reduce verbosity of this section
@@ -64,26 +80,9 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
             Expr.Binary.Op.CHECK_EQUAL -> l equals r
             Expr.Binary.Op.CHECK_NOT_EQUAL -> !(l equals r)
 
-            Expr.Binary.Op.CHECK_GREATER -> {
-                checkIsNumber(l, b.token, r)
-                l as Double > r as Double
-            }
-            Expr.Binary.Op.CHECK_GREATER_EQUAL -> {
-                checkIsNumber(l, b.token, r)
-                l as Double >= r as Double
-            }
-
-        //Without the parentheses, a compiler error occurs as the '<' denotes a type parameter, but Double expects none
-            Expr.Binary.Op.CHECK_LESS -> {
-                checkIsNumber(l, b.token, r)
-                (l as Double) < r as Double
-            }
-            Expr.Binary.Op.CHECK_LESS_EQUAL -> {
-                checkIsNumber(l, b.token, r)
-                l as Double <= r as Double
-            }
-
             Expr.Binary.Op.COMMA -> r
+
+            else -> throw Error()
         }
     }
 
