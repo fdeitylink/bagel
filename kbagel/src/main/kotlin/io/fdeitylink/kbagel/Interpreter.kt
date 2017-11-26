@@ -47,10 +47,10 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
         )
                 .entries
                 .firstOrNull { (op) -> op == b.op }
-                ?.let { (_, pred) ->
+                ?.let { (_, predicate) ->
                     return@visit when {
-                        l is String && r is String -> pred(l.compareTo(r))
-                        l is Double && r is Double -> pred(l.compareTo(r))
+                        l is String && r is String -> predicate(l.compareTo(r))
+                        l is Double && r is Double -> predicate(l.compareTo(r))
                         else -> throw LoxRuntimeError(b.token, "Operands must be two numbers or two strings (l: $l, r: $r)")
                     }
                 }
