@@ -56,23 +56,12 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
                 }
 
         return when (b.op) {
-            Expr.Binary.Op.ADD -> {
-                //TODO: Reduce verbosity of this section
-                if (l is Double && r is Double) {
-                    l + r
-                }
-                else if (l is String && r is String) {
-                    l + r
-                }
-                else if (l is String && r is Double) {
-                    l + r.toString().removeSuffix(".0")
-                }
-                else if (l is Double && r is String) {
-                    l.toString().removeSuffix(".0") + r
-                }
-                else {
-                    throw LoxRuntimeError(b.token, "Operands must be two numbers or two strings (l: $l, r: $r)")
-                }
+            Expr.Binary.Op.ADD -> when {
+                l is Double && r is Double -> l + r
+                l is String && r is String -> l + r
+                l is String && r is Double -> l + r.toString().removeSuffix(".0")
+                l is Double && r is String -> l.toString().removeSuffix(".0") + r
+                else -> throw LoxRuntimeError(b.token, "Operands must be two numbers or two strings (l: $l, r: $r)")
             }
             Expr.Binary.Op.SUBTRACT -> {
                 checkOperandsAreNumbers()
