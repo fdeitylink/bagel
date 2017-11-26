@@ -15,8 +15,10 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
 
         return when (u.op) {
             Expr.Unary.Op.MINUS -> {
-                checkIsNumber(u.token, operand)
-                -(operand as Double)
+                if (operand !is Double) {
+                    throw LoxRuntimeError(u.token, "Operand is not a number (operand: $operand)")
+                }
+                -operand
             }
             Expr.Unary.Op.NOT -> !operand.isTruthy
         }
@@ -93,12 +95,6 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
     override fun visit(g: Expr.Grouping) = eval(g.expr)
 
     private fun eval(expr: Expr) = expr.accept(this)
-
-    private fun checkIsNumber(token: Token<*>, operand: Any?) {
-        if (operand !is Double) {
-            throw LoxRuntimeError(token, "Operand is not a number (operand: $operand)")
-        }
-    }
 
     private fun checkIsNumber(l: Any?, token: Token<*>, r: Any?) {
         if (l !is Double) {
