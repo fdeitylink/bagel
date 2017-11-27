@@ -74,6 +74,9 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
             }
             Expr.Binary.Op.DIVIDE -> {
                 checkOperandsAreNumbers()
+                if (r == 0.toDouble()) {
+                    throw LoxRuntimeError(b.token, "Division by zero (right-hand operand is 0)")
+                }
                 l as Double / r as Double
             }
 
