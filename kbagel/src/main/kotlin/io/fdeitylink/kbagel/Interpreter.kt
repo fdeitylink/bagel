@@ -40,10 +40,10 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
         }
 
         mapOf(
-                Expr.Binary.Op.CHECK_GREATER to { x: Int -> x > 0 },
-                Expr.Binary.Op.CHECK_GREATER_EQUAL to { x: Int -> x >= 0 },
-                Expr.Binary.Op.CHECK_LESS to { x: Int -> x < 0 },
-                Expr.Binary.Op.CHECK_LESS_EQUAL to { x: Int -> x <= 0 }
+                Expr.Binary.Op.CHECK_GREATER to { diff: Int -> diff > 0 },
+                Expr.Binary.Op.CHECK_GREATER_EQUAL to { diff: Int -> diff >= 0 },
+                Expr.Binary.Op.CHECK_LESS to { diff: Int -> diff < 0 },
+                Expr.Binary.Op.CHECK_LESS_EQUAL to { diff: Int -> diff <= 0 }
         )
                 .entries
                 .firstOrNull { (op) -> op == b.op }
