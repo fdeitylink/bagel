@@ -1,6 +1,6 @@
 package io.fdeitylink.kbagel
 
-internal object AstPrinter : Expr.Visitor<String>() {
+internal object AstPrinter : Expr.Visitor<String> {
     fun print(expr: Expr) = expr.accept(this)
 
     override fun visit(u: Expr.Unary) = parenthesize(u.op.tokenType.char.toString(), u.operand)

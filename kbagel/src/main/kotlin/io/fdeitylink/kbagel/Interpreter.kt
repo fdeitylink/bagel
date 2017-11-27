@@ -1,6 +1,6 @@
 package io.fdeitylink.kbagel
 
-internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<Any?>() {
+internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<Any?> {
     fun interpret(e: Expr) =
             try {
                 stringify(eval(e))

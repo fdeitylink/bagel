@@ -3,22 +3,23 @@ package io.fdeitylink.kbagel
 internal sealed class Expr {
     fun <R> accept(visitor: Visitor<R>) = visitor.visit(this)
 
-    abstract class Visitor<out R> {
+    interface Visitor<out R> {
         @Suppress("UNCHECKED_CAST")
         fun visit(e: Expr) =
                 Visitor::class.java.declaredMethods
                         .first { it.parameterTypes.first() == e::class.java }
                         .invoke(this, e) as R
 
-        protected abstract fun visit(u: Unary): R
+        //Make these methods protected again once it's supported in Kotlin (IIRC Java 9 supports it)
+        fun visit(u: Unary): R
 
-        protected abstract fun visit(b: Binary): R
+        fun visit(b: Binary): R
 
-        protected abstract fun visit(t: Ternary): R
+        fun visit(t: Ternary): R
 
-        protected abstract fun visit(l: Literal<*>): R
+        fun visit(l: Literal<*>): R
 
-        protected abstract fun visit(g: Grouping): R
+        fun visit(g: Grouping): R
     }
 
     data class Unary(
