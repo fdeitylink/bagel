@@ -14,8 +14,6 @@ import java.io.IOException
 
 import kotlin.system.exitProcess
 
-import io.fdeitylink.util.use
-
 internal object KBagel {
     private const val scanParseErrorCode = 65
     private const val runtimeErrorCode = 70
