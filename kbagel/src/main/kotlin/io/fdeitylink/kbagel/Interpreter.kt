@@ -5,7 +5,7 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
             try {
                 stringify(eval(e))
             }
-            catch (err: LoxRuntimeError) {
+            catch (err: BagelRuntimeError) {
                 reporter.report(err)
                 ""
             }
@@ -16,7 +16,7 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
         return when (u.op) {
             Expr.Unary.Op.MINUS -> {
                 if (operand !is Double) {
-                    throw LoxRuntimeError(u.token, "Operand is not a number (operand: $operand)")
+                    throw BagelRuntimeError(u.token, "Operand is not a number (operand: $operand)")
                 }
                 -operand
             }
@@ -32,10 +32,10 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
 
         fun checkOperandsAreNumbers() {
             if (l !is Double) {
-                throw LoxRuntimeError(b.token, "Left operand is not a number (l: $l, r: $r)")
+                throw BagelRuntimeError(b.token, "Left operand is not a number (l: $l, r: $r)")
             }
             if (r !is Double) {
-                throw LoxRuntimeError(b.token, "Right operand is not a number (l: $l, r: $r)")
+                throw BagelRuntimeError(b.token, "Right operand is not a number (l: $l, r: $r)")
             }
         }
 
@@ -51,7 +51,7 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
                     return@visit when {
                         l is String && r is String -> predicate(l.compareTo(r))
                         l is Double && r is Double -> predicate(l.compareTo(r))
-                        else -> throw LoxRuntimeError(b.token, "Operands must be two numbers or two strings (l: $l, r: $r)")
+                        else -> throw BagelRuntimeError(b.token, "Operands must be two numbers or two strings (l: $l, r: $r)")
                     }
                 }
 
@@ -61,7 +61,7 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
                 l is String && r is String -> l + r
                 l is String && r is Double -> l + r.toString().removeSuffix(".0")
                 l is Double && r is String -> l.toString().removeSuffix(".0") + r
-                else -> throw LoxRuntimeError(b.token, "Operands must be numbers or strings (l: $l, r: $r)")
+                else -> throw BagelRuntimeError(b.token, "Operands must be numbers or strings (l: $l, r: $r)")
             }
             Expr.Binary.Op.SUBTRACT -> {
                 checkOperandsAreNumbers()
@@ -75,7 +75,7 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
             Expr.Binary.Op.DIVIDE -> {
                 checkOperandsAreNumbers()
                 if (r == 0.toDouble()) {
-                    throw LoxRuntimeError(b.token, "Division by zero (right-hand operand is 0)")
+                    throw BagelRuntimeError(b.token, "Division by zero (right-hand operand is 0)")
                 }
                 l as Double / r as Double
             }

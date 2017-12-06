@@ -73,7 +73,7 @@ internal object KBagel {
             hadScanParseError = true
         }
 
-        override fun report(err: LoxRuntimeError) {
+        override fun report(err: BagelRuntimeError) {
             System.err.println("${err.message}\n[line ${err.token.line}]")
             hadRuntimeError = true
         }

@@ -28,7 +28,7 @@ internal abstract class ErrorReporter {
     abstract fun report(line: Int, message: String, location: String = "")
 
     /**
-     * Reports a given [LoxRuntimeError]. Sets [hadRuntimeError] to `true`.
+     * Reports a given [BagelRuntimeError]. Sets [hadRuntimeError] to `true`.
      */
-    abstract fun report(err: LoxRuntimeError)
+    abstract fun report(err: BagelRuntimeError)
 }
