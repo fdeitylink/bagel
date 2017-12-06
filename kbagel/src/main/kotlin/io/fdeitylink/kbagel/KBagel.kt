@@ -7,9 +7,6 @@ import java.nio.file.Files
 
 import java.nio.charset.Charset
 
-import java.io.BufferedReader
-import java.io.InputStreamReader
-
 import java.io.IOException
 
 import kotlin.system.exitProcess
@@ -39,17 +36,17 @@ internal object KBagel {
     }
 
     @Throws(IOException::class)
-    private fun runPrompt() =
-            InputStreamReader(System.`in`).use {
-                BufferedReader(it).use {
-                    while (true) {
-                        print("> ")
-                        run(it.readLine())
-                        //Even if the user made an error, it shouldn't kill the REPL session
-                        Reporter.hadScanParseError = false
-                    }
-                }
+    private fun runPrompt() {
+        print("> ")
+        System.`in`.reader().buffered().use {
+            it.lines().forEach {
+                run(it)
+                //Even if the user made an error, it shouldn't kill the REPL session
+                Reporter.hadScanParseError = false
+                print("> ")
             }
+        }
+    }
 
     private fun run(source: String) {
         val expr = Parser(Scanner(source, Reporter).tokens, Reporter).parsed
