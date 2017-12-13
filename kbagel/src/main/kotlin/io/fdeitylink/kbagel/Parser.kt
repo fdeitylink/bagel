@@ -17,7 +17,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun expression() = comma()
 
-    private fun comma() = binaryLeftAssoc(this::ternary, SingleCharToken.Type.COMMA)
+    private fun comma() = binaryLeftAssoc(::ternary, SingleCharToken.Type.COMMA)
 
     private fun ternary(): Expr {
         var expr = equality()
@@ -33,18 +33,17 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
     }
 
     private fun equality() =
-            binaryLeftAssoc(this::comparison, MultiCharToken.Type.EQUAL_EQUAL, MultiCharToken.Type.BANG_EQUAL)
+            binaryLeftAssoc(::comparison, MultiCharToken.Type.EQUAL_EQUAL, MultiCharToken.Type.BANG_EQUAL)
 
     private fun comparison() =
-            binaryLeftAssoc(this::addition,
+            binaryLeftAssoc(::addition,
                             SingleCharToken.Type.GREATER, MultiCharToken.Type.GREATER_EQUAL,
                             SingleCharToken.Type.LESS, MultiCharToken.Type.LESS_EQUAL)
 
-    private fun addition() =
-            binaryLeftAssoc(this::multiplication, SingleCharToken.Type.PLUS, SingleCharToken.Type.MINUS)
+    private fun addition() = binaryLeftAssoc(::multiplication, SingleCharToken.Type.PLUS, SingleCharToken.Type.MINUS)
 
     private fun multiplication() =
-            binaryLeftAssoc(this::unary, SingleCharToken.Type.ASTERISK, SingleCharToken.Type.FORWARD_SLASH)
+            binaryLeftAssoc(::unary, SingleCharToken.Type.ASTERISK, SingleCharToken.Type.FORWARD_SLASH)
 
     private fun unary(): Expr {
         if (match(SingleCharToken.Type.BANG, SingleCharToken.Type.MINUS)) {
@@ -97,7 +96,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
     }
 
     private fun match(vararg tokens: TokenType<*>): Boolean {
-        val match = tokens.any(this::check)
+        val match = tokens.any(::check)
         if (match) {
             advance()
         }
