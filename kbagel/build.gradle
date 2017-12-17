@@ -33,6 +33,12 @@ compileTestKotlin {
 }
 
 run {
+    standardOutput = System.out
+    standardInput = System.in
+}
+
+runShadow {
+    standardOutput = System.out
     standardInput = System.in
 }
 
