@@ -23,8 +23,8 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
         var expr = equality()
 
         if (match(SingleCharToken.Type.QUESTION_MARK)) {
-            val thenBranch = ternary() //Should I assign to expression() instead?
-            consume(SingleCharToken.Type.COLON) { "Expected ':' after \"then branch\" of ternary statement" }
+            val thenBranch = expression()
+            consume(SingleCharToken.Type.COLON) { "Expected ':' after \"then branch\" of ternary statement." }
             val elseBranch = ternary()
             expr = Expr.Ternary(expr, thenBranch, elseBranch)
         }
