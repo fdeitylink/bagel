@@ -10,7 +10,7 @@ internal sealed class Expr {
                         .first { it.parameterTypes.first() == e::class.java }
                         .invoke(this, e) as R
 
-        //Make these methods protected again once it's supported in Kotlin (IIRC Java 9 supports it)
+        //TODO: Make these methods protected again once it's supported in Kotlin (IIRC Java 9 supports it)
         fun visit(u: Unary): R
 
         fun visit(b: Binary): R
@@ -22,7 +22,7 @@ internal sealed class Expr {
         fun visit(g: Grouping): R
     }
 
-    data class Unary(
+    class Unary(
             val token: Token<SingleCharToken.Type>,
             val operand: Expr
     ) : Expr() {
@@ -42,7 +42,7 @@ internal sealed class Expr {
         }
     }
 
-    data class Binary(
+    class Binary(
             val lOperand: Expr,
             val token: Token<*>,
             val rOperand: Expr
@@ -69,11 +69,9 @@ internal sealed class Expr {
         }
     }
 
-    data class Ternary(val cond: Expr, val thenBranch: Expr, val elseBranch: Expr) : Expr()
+    class Ternary(val cond: Expr, val thenBranch: Expr, val elseBranch: Expr) : Expr()
 
-    //See comment at top of Token.kt for the reasoning behind using private data class constructors
-    @Suppress("DataClassPrivateConstructor")
-    data class Literal<out T> private constructor(val value: T) : Expr() {
+    class Literal<out T> private constructor(val value: T) : Expr() {
         companion object {
             operator fun invoke() = Literal(null)
 
@@ -85,5 +83,5 @@ internal sealed class Expr {
         }
     }
 
-    data class Grouping(val expr: Expr) : Expr()
+    class Grouping(val expr: Expr) : Expr()
 }
