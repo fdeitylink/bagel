@@ -59,8 +59,8 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
             Expr.Binary.Op.ADD -> when {
                 l is Double && r is Double -> l + r
                 l is String && r is String -> l + r
-                l is String && r is Double -> l + r.toString().removeSuffix(".0")
-                l is Double && r is String -> l.toString().removeSuffix(".0") + r
+                l is String && r is Double -> l + stringify(r)
+                l is Double && r is String -> stringify(l) + r
                 else -> throw BagelRuntimeError(b.token, "Operands must be numbers or strings (l: $l, r: $r)")
             }
             Expr.Binary.Op.SUBTRACT -> {
