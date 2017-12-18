@@ -49,12 +49,12 @@ internal object KBagel {
     }
 
     private fun run(source: String) {
-        val expr = Parser(Scanner(source, Reporter).tokens, Reporter).parsed
+        val stmts = Parser(Scanner(source, Reporter).tokens, Reporter).parsed
         if (Reporter.hadScanParseError) {
             return
         }
 
-        expr?.let(interpreter::interpret).also(::println)
+        interpreter.interpret(stmts)
     }
 
     private object Reporter : ErrorReporter() {

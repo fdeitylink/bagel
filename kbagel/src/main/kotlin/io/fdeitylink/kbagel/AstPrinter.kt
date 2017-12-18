@@ -23,6 +23,10 @@ internal object AstPrinter : Expr.Visitor<String> {
 
     override fun visit(g: Expr.Grouping) = parenthesize("group", g.expr)
 
+    override fun visit(v: Expr.Var) = parenthesize("var ${v.name.lexeme}")
+
+    override fun visit(a: Expr.Assign) = parenthesize("assign ${a.name.lexeme}", a.value)
+
     private fun parenthesize(name: String, vararg exprs: Expr): String {
         val builder = StringBuilder()
 

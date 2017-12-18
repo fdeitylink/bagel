@@ -1,13 +1,14 @@
 package io.fdeitylink.kbagel
 
-internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<Any?> {
-    fun interpret(e: Expr) =
+internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
+    private var env = Environment()
+
+    fun interpret(stmts: List<Stmt>) =
             try {
-                stringify(eval(e))
+                stmts.forEach(::exec)
             }
             catch (err: BagelRuntimeError) {
                 reporter.report(err)
-                ""
             }
 
     override fun visit(u: Expr.Unary): Any? {
@@ -94,6 +95,41 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
     override fun visit(l: Expr.Literal<*>) = l.value
 
     override fun visit(g: Expr.Grouping) = eval(g.expr)
+
+    override fun visit(v: Expr.Var) = env[v.name]
+
+    override fun visit(a: Expr.Assign): Any? {
+        val value = eval(a.value)
+        env.assign(a.name, value)
+        return value
+    }
+
+    override fun visit(e: Stmt.Expression) {
+        eval(e.expr)
+    }
+
+    override fun visit(p: Stmt.Print) = println(stringify(eval(p.expr)))
+
+    override fun visit(v: Stmt.Var) {
+        env[v.name] = v.initializer?.let(::eval)
+    }
+
+    override fun visit(b: Stmt.Block) {
+        val stmts = b.stmts
+        val env = Environment(this.env)
+
+        val prev = this.env
+
+        try {
+            this.env = env
+            stmts.forEach(::exec)
+        }
+        finally {
+            this.env = prev
+        }
+    }
+
+    private fun exec(stmt: Stmt) = stmt.accept(this)
 
     private fun eval(expr: Expr) = expr.accept(this)
 

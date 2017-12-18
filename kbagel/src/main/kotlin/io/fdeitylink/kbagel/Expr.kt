@@ -20,6 +20,10 @@ internal sealed class Expr {
         fun visit(l: Literal<*>): R
 
         fun visit(g: Grouping): R
+
+        fun visit(v: Var): R
+
+        fun visit(a: Assign): R
     }
 
     class Unary(
@@ -84,4 +88,8 @@ internal sealed class Expr {
     }
 
     class Grouping(val expr: Expr) : Expr()
+
+    class Var(val name: IdentifierToken) : Expr()
+
+    class Assign(val name: IdentifierToken, val value: Expr) : Expr()
 }

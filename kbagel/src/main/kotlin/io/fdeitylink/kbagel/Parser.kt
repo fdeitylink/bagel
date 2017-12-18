@@ -5,19 +5,89 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
 
     private val isAtEnd get() = EOFToken.Type.EOF == peek().type
 
-    val parsed by lazy(LazyThreadSafetyMode.NONE) {
-        try {
-            expression()
+    val parsed: List<Stmt> by lazy(LazyThreadSafetyMode.NONE) {
+        val stmts = mutableListOf<Stmt>()
+        while (!isAtEnd) {
+            declaration()?.let(stmts::add)
+        }
+
+        stmts
+    }
+
+    private fun declaration(): Stmt? {
+        return try {
+            when {
+                match(KeywordToken.Type.VAR) -> varDeclaration()
+                else -> statement()
+            }
         }
         catch (except: ParseException) {
+            synchronize()
             null
         }
+    }
+
+    private fun varDeclaration(): Stmt {
+        val name = consume(IdentifierToken.Type.IDENTIFIER) { "Expected variable name." } as IdentifierToken
+
+        val initializer = if (match(SingleCharToken.Type.EQUAL)) expression() else null
+
+        consume(SingleCharToken.Type.SEMICOLON) { "Expected ';' after variable declaration." }
+
+        return Stmt.Var(name, initializer)
+    }
+
+    private fun statement() = when {
+        match(KeywordToken.Type.PRINT) -> printStatement()
+        match(SingleCharToken.Type.LEFT_BRACE) -> Stmt.Block(block())
+        else -> expressionStatement()
+    }
+
+    private fun printStatement(): Stmt {
+        val value = expression()
+        consume(SingleCharToken.Type.SEMICOLON) { "Expected `;` after value." }
+        return Stmt.Print(value)
+    }
+
+    private fun block(): List<Stmt> {
+        val stmts = mutableListOf<Stmt>()
+
+        while (!check(SingleCharToken.Type.RIGHT_BRACE) && !isAtEnd) {
+            declaration()?.let(stmts::add)
+        }
+
+        consume(SingleCharToken.Type.RIGHT_BRACE) { "Expected '}' after block." }
+
+        return stmts
+    }
+
+    private fun expressionStatement(): Stmt {
+        val expr = expression()
+        consume(SingleCharToken.Type.SEMICOLON) { "Expected ';' after expression." }
+        return Stmt.Expression(expr)
     }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun expression() = comma()
 
-    private fun comma() = binaryLeftAssoc(::ternary, SingleCharToken.Type.COMMA)
+    private fun comma() = binaryLeftAssoc(::assignment, SingleCharToken.Type.COMMA)
+
+    private fun assignment(): Expr {
+        val expr = ternary()
+
+        if (match(SingleCharToken.Type.EQUAL)) {
+            val equals = previous()
+            val value = assignment()
+
+            if (expr is Expr.Var) {
+                return Expr.Assign(expr.name, value)
+            }
+
+            error(equals, "Invalid assignment target.")
+        }
+
+        return expr
+    }
 
     private fun ternary(): Expr {
         var expr = equality()
@@ -65,6 +135,8 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
 
         match(LiteralToken.Type.NUMBER) -> Expr.Literal((previous() as LiteralToken<Double>).value)
         match(LiteralToken.Type.STRING) -> Expr.Literal((previous() as LiteralToken<String>).value)
+
+        match(IdentifierToken.Type.IDENTIFIER) -> Expr.Var(previous() as IdentifierToken)
 
         match(SingleCharToken.Type.LEFT_PAREN) -> {
             val expr = expression()
