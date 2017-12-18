@@ -21,7 +21,7 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
                 else -> statement()
             }
         }
-        catch (except: ParseException) {
+        catch (except: ParseError) {
             synchronize()
             null
         }
@@ -162,9 +162,9 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
     private fun consume(type: TokenType<*>, lazyMessage: () -> Any) =
             if (check(type)) advance() else throw error(peek(), lazyMessage().toString())
 
-    private fun error(token: Token<*>, message: String): ParseException {
+    private fun error(token: Token<*>, message: String): ParseError {
         reporter.report(token, message)
-        return ParseException(token, message)
+        return ParseError(token, message)
     }
 
     private fun match(vararg tokens: TokenType<*>): Boolean {
@@ -211,5 +211,5 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
         }
     }
 
-    private class ParseException(val token: Token<*>, override val message: String) : Exception()
+    private class ParseError(val token: Token<*>, override val message: String) : Exception()
 }
