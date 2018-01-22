@@ -5,10 +5,10 @@ internal sealed class Stmt {
 
     interface Visitor<out R> {
         @Suppress("UNCHECKED_CAST")
-        fun visit(e: Stmt) =
+        fun visit(s: Stmt) =
                 Visitor::class.java.declaredMethods
-                        .first { it.parameterTypes.first() == e::class.java }
-                        .invoke(this, e) as R
+                        .first { it.parameterTypes.first() == s::class.java }
+                        .invoke(this, s) as R
 
         //TODO: Make these methods protected again once it's supported in Kotlin (IIRC Java 9 supports it)
         fun visit(e: Expression): R
