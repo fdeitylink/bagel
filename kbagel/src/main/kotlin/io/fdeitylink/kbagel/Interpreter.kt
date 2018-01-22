@@ -26,7 +26,7 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
     }
 
     override fun visit(b: Expr.Binary): Any? {
-        infix fun Any?.equals(o: Any?) = if (this == null && o == null) true else this?.equals(o) ?: false
+        infix fun Any?.eq(o: Any?) = if (this == null && o == null) true else this?.equals(o) ?: false
 
         val l = eval(b.lOperand)
         val r = eval(b.rOperand)
@@ -81,8 +81,8 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
                 l as Double / r as Double
             }
 
-            Expr.Binary.Op.CHECK_EQUAL -> l equals r
-            Expr.Binary.Op.CHECK_NOT_EQUAL -> !(l equals r)
+            Expr.Binary.Op.CHECK_EQUAL -> l eq r
+            Expr.Binary.Op.CHECK_NOT_EQUAL -> !(l eq r)
 
             Expr.Binary.Op.COMMA -> r
 
@@ -133,16 +133,16 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
 
     private fun eval(expr: Expr) = expr.accept(this)
 
+    private fun stringify(o: Any?) = when (o) {
+        null -> "nil"
+        is Double -> o.toString().removeSuffix(".0")
+        else -> o.toString()
+    }
+
     private val Any?.isTruthy
         get() = when (this) {
             null -> false
             is Boolean -> this
             else -> true
         }
-
-    private fun stringify(o: Any?) = when (o) {
-        null -> "nil"
-        is Double -> o.toString().removeSuffix(".0")
-        else -> o.toString()
-    }
 }
