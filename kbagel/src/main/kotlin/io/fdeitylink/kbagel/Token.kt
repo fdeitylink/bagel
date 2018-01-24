@@ -1,14 +1,3 @@
-/*
- * Private constructors for data classes offer no real protection because of the
- * copy method, but I'm using them here to make it harder to accidentally use the
- * full primary constructors as opposed to the secondary constructors, which pass
- * in specific values to the primary constructors that are either relied upon or
- * are the only sensible values. I'd replace the primary constructors with the
- * secondary ones, but then not all of the necessary fields would be used in the
- * generated methods.
- */
-@file:Suppress("DataClassPrivateConstructor")
-
 package io.fdeitylink.kbagel
 
 internal interface TokenType<T>
@@ -21,13 +10,11 @@ internal sealed class Token<T>
     abstract val line: Int
 }
 
-internal data class SingleCharToken
-private constructor(
+internal class SingleCharToken(
         override val type: SingleCharToken.Type,
-        override val lexeme: String,
         override val line: Int
 ) : Token<SingleCharToken.Type>() {
-    constructor(type: SingleCharToken.Type, line: Int) : this(type, type.char.toString(), line)
+    override val lexeme = type.char.toString()
 
     enum class Type(val char: Char) : TokenType<SingleCharToken.Type> {
         LEFT_PAREN('('), RIGHT_PAREN(')'),
@@ -45,23 +32,21 @@ private constructor(
     }
 }
 
-internal data class MultiCharToken
-private constructor(
+internal class MultiCharToken(
         override val type: MultiCharToken.Type,
-        override val lexeme: String,
         override val line: Int
 ) : Token<MultiCharToken.Type>() {
-    constructor(type: MultiCharToken.Type, line: Int) : this(type, type.chars, line)
+    override val lexeme = type.chars
 
     enum class Type(val chars: String) : TokenType<MultiCharToken.Type> {
         BANG_EQUAL("!="),
         EQUAL_EQUAL("=="),
         GREATER_EQUAL(">="),
-        LESS_EQUAL("<=");
+        LESS_EQUAL("<=")
     }
 }
 
-internal data class LiteralToken<out T : Any>
+internal class LiteralToken<out T : Any>
 private constructor(
         override val type: LiteralToken.Type,
         override val lexeme: String,
@@ -70,7 +55,7 @@ private constructor(
 ) : Token<LiteralToken.Type>() {
     companion object {
         operator fun invoke(lexeme: String, value: String, line: Int): LiteralToken<String> {
-            require(isValidStringLiteral(lexeme)) { "$lexeme is not a valid string literal" }
+            require(isValidStringLiteral(lexeme)) { "'$lexeme' is not a valid string literal" }
 
             require(value == lexeme.substring(1, lexeme.lastIndex))
             { "value does not match lexeme (value: $value, lexeme: $lexeme)" }
@@ -79,7 +64,7 @@ private constructor(
         }
 
         operator fun invoke(lexeme: String, value: Double, line: Int): LiteralToken<Double> {
-            require(isValidNumberLiteral(lexeme)) { "$lexeme is not a valid number literal" }
+            require(isValidNumberLiteral(lexeme)) { "'$lexeme' is not a valid number literal" }
 
             require(value == lexeme.toDouble()) { "value does not match lexeme (value: $value, lexeme: $lexeme)" }
 
@@ -92,16 +77,14 @@ private constructor(
     }
 }
 
-internal data class IdentifierToken
-private constructor(
-        override val type: IdentifierToken.Type,
+internal class IdentifierToken(
         override val lexeme: String,
         override val line: Int
 ) : Token<IdentifierToken.Type>() {
-    constructor(lexeme: String, line: Int) : this(IdentifierToken.Type.IDENTIFIER, lexeme, line)
+    override val type = IdentifierToken.Type.IDENTIFIER
 
     init {
-        require(isValidIdentifier(lexeme)) { "$lexeme is not a valid identifier literal" }
+        require(isValidIdentifier(lexeme)) { "'$lexeme' is not a valid identifier literal" }
     }
 
     enum class Type : TokenType<IdentifierToken.Type> {
@@ -109,13 +92,11 @@ private constructor(
     }
 }
 
-internal data class KeywordToken
-private constructor(
+internal class KeywordToken(
         override val type: KeywordToken.Type,
-        override val lexeme: String,
         override val line: Int
 ) : Token<KeywordToken.Type>() {
-    constructor(type: KeywordToken.Type, line: Int) : this(type, type.chars, line)
+    override val lexeme = type.chars
 
     enum class Type : TokenType<KeywordToken.Type> {
         AND, CLASS, ELSE, FALSE,
@@ -131,13 +112,11 @@ private constructor(
     }
 }
 
-internal data class EOFToken
-private constructor(
-        override val type: EOFToken.Type,
-        override val lexeme: String,
+internal class EOFToken(
         override val line: Int
 ) : Token<EOFToken.Type>() {
-    constructor(line: Int) : this(EOFToken.Type.EOF, "", line)
+    override val type = EOFToken.Type.EOF
+    override val lexeme = ""
 
     enum class Type : TokenType<EOFToken.Type> {
         EOF
