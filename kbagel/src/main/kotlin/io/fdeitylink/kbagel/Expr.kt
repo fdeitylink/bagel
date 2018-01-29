@@ -30,11 +30,11 @@ internal sealed class Expr {
             val token: Token<SingleCharToken.Type>,
             val operand: Expr
     ) : Expr() {
-        val op = Unary.Op.operators[token.type]!!
-
         init {
             require(token.type in Unary.Op.operators) { "${token.type} has no corresponding unary operator" }
         }
+
+        val op = Unary.Op.operators[token.type]!!
 
         enum class Op(override val tokenType: SingleCharToken.Type) : Operation<Unary.Op> {
             MINUS(SingleCharToken.Type.MINUS),
@@ -51,11 +51,11 @@ internal sealed class Expr {
             val token: Token<*>,
             val rOperand: Expr
     ) : Expr() {
-        val op = Binary.Op.operators[token.type]!!
-
         init {
             require(token.type in Binary.Op.operators) { "${token.type} has no corresponding binary operator" }
         }
+
+        val op = Binary.Op.operators[token.type]!!
 
         enum class Op(override val tokenType: TokenType<*>) : Operation<Binary.Op> {
             SUBTRACT(SingleCharToken.Type.MINUS), ADD(SingleCharToken.Type.PLUS),
