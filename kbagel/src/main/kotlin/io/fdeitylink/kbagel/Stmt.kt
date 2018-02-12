@@ -18,6 +18,12 @@ internal sealed class Stmt {
         fun visit(v: Var): R
 
         fun visit(b: Block): R
+
+        fun visit(i: If): R
+
+        fun visit(w: While): R
+
+        fun visit(b: Break): R
     }
 
     class Expression(val expr: Expr) : Stmt()
@@ -27,4 +33,10 @@ internal sealed class Stmt {
     class Var(val name: IdentifierToken, val initializer: Expr?) : Stmt()
 
     class Block(val stmts: List<Stmt>) : Stmt()
+
+    class If(val cond: Expr, val thenBranch: Stmt, val elseBranch: Stmt?) : Stmt()
+
+    class While(val cond: Expr, val body: Stmt) : Stmt()
+
+    class Break : Stmt()
 }

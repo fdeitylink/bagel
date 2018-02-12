@@ -24,6 +24,8 @@ internal sealed class Expr {
         fun visit(v: Var): R
 
         fun visit(a: Assign): R
+
+        fun visit(l: Logical): R
     }
 
     class Unary(
@@ -92,4 +94,25 @@ internal sealed class Expr {
     class Var(val name: IdentifierToken) : Expr()
 
     class Assign(val name: IdentifierToken, val value: Expr) : Expr()
+
+    class Logical(
+            val lOperand: Expr,
+            val token: Token<KeywordToken.Type>,
+            val rOperand: Expr
+    ) : Expr() {
+        init {
+            require(token.type in Logical.Op.operators) { "${token.type} has no corresponding logical operator" }
+        }
+
+        val op = Logical.Op.operators[token.type]!!
+
+        enum class Op(override val tokenType: KeywordToken.Type) : Operation<Logical.Op> {
+            AND(KeywordToken.Type.AND),
+            OR(KeywordToken.Type.OR);
+
+            companion object {
+                val operators = Operation.operators<Logical.Op>()
+            }
+        }
+    }
 }

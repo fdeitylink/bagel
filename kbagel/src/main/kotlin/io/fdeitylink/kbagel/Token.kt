@@ -99,9 +99,9 @@ internal class KeywordToken(
     override val lexeme = type.chars
 
     enum class Type : TokenType<KeywordToken.Type> {
-        AND, CLASS, ELSE, FALSE,
-        FUN, FOR, IF, NIL, OR,
-        PRINT, RETURN, SUPER,
+        AND, BREAK, CLASS, ELSE,
+        FALSE, FOR, FUN, IF, NIL,
+        OR, PRINT, RETURN, SUPER,
         THIS, TRUE, VAR, WHILE;
 
         val chars = name.toLowerCase()

@@ -3,13 +3,12 @@ package io.fdeitylink.kbagel
 internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     private var env = Environment()
 
-    fun interpret(stmts: List<Stmt>) =
-            try {
-                stmts.forEach(::exec)
-            }
-            catch (err: BagelRuntimeError) {
-                reporter.report(err)
-            }
+    fun interpret(stmts: List<Stmt>) = try {
+        stmts.forEach(::exec)
+    }
+    catch (err: BagelRuntimeError) {
+        reporter.report(err)
+    }
 
     override fun visit(u: Expr.Unary): Any? {
         val operand = eval(u.operand)
@@ -104,6 +103,15 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
         return value
     }
 
+    override fun visit(l: Expr.Logical): Any? {
+        val left = eval(l.lOperand)
+
+        return when (l.op) {
+            Expr.Logical.Op.OR -> if (left.isTruthy) left else eval(l.rOperand)
+            Expr.Logical.Op.AND -> if (!left.isTruthy) left else eval(l.rOperand)
+        }
+    }
+
     override fun visit(e: Stmt.Expression) {
         eval(e.expr)
     }
@@ -129,6 +137,37 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
         }
     }
 
+    override fun visit(i: Stmt.If) {
+        if (eval(i.cond).isTruthy) exec(i.thenBranch) else i.elseBranch?.let(::exec)
+    }
+
+    override fun visit(w: Stmt.While) {
+        try {
+            while (eval(w.cond).isTruthy) {
+                exec(w.body)
+            }
+        }
+        catch (except: Exception) {
+            /*
+             * Doing a catch for any Exception and finding the root cause is necessary because Stmt.Visitor.visit(Stmt)
+             * uses reflection to call the proper visit method for the Stmt subclass. As such, when exceptions like
+             * BreakExceptions are thrown, they are wrapped within InvocationTargetExceptions, so we need to determine
+             * if the initial exception thrown was a BreakException.
+             */
+            var rootCause: Throwable = except
+            while (rootCause.cause != null) {
+                rootCause = rootCause.cause!!
+            }
+
+            if (rootCause !is BreakException) {
+                throw except
+            }
+            //Do nothing otherwise - BreakException is merely used to unwind the call stack
+        }
+    }
+
+    override fun visit(b: Stmt.Break) = throw BreakException()
+
     private fun exec(stmt: Stmt) = stmt.accept(this)
 
     private fun eval(expr: Expr) = expr.accept(this)
@@ -145,4 +184,10 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
             is Boolean -> this
             else -> true
         }
+
+    /**
+     * [BreakException] serves to exit loops when a break statement is used;
+     * it does not indicate any error in program execution.
+     */
+    private class BreakException : RuntimeException()
 }
