@@ -107,8 +107,9 @@ internal class Interpreter(private val reporter: ErrorReporter) : Expr.Visitor<A
         val left = eval(l.lOperand)
 
         return when (l.op) {
-            Expr.Logical.Op.OR -> if (left.isTruthy) left else eval(l.rOperand)
             Expr.Logical.Op.AND -> if (!left.isTruthy) left else eval(l.rOperand)
+            Expr.Logical.Op.OR -> if (left.isTruthy) left else eval(l.rOperand)
+            Expr.Logical.Op.XOR -> if (left.isTruthy) !eval(l.rOperand).isTruthy else eval(l.rOperand).isTruthy
         }
     }
 

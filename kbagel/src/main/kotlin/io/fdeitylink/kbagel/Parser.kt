@@ -188,7 +188,11 @@ internal class Parser(private val tokens: List<Token<*>>, private val reporter: 
 
     @Suppress("UNCHECKED_CAST")
     private fun and() =
-            binaryLeftAssoc(::equality, KeywordToken.Type.AND, binaryExprCtor = Expr::Logical as (Expr, Token<*>, Expr) -> Expr)
+            binaryLeftAssoc(::xor, KeywordToken.Type.AND, binaryExprCtor = Expr::Logical as (Expr, Token<*>, Expr) -> Expr)
+
+    @Suppress("UNCHECKED_CAST")
+    private fun xor() =
+            binaryLeftAssoc(::equality, KeywordToken.Type.XOR, binaryExprCtor = Expr::Logical as (Expr, Token<*>, Expr) -> Expr)
 
     private fun equality() =
             binaryLeftAssoc(::comparison, MultiCharToken.Type.EQUAL_EQUAL, MultiCharToken.Type.BANG_EQUAL)

@@ -108,7 +108,8 @@ internal sealed class Expr {
 
         enum class Op(override val tokenType: KeywordToken.Type) : Operation<Logical.Op> {
             AND(KeywordToken.Type.AND),
-            OR(KeywordToken.Type.OR);
+            OR(KeywordToken.Type.OR),
+            XOR(KeywordToken.Type.XOR);
 
             companion object {
                 val operators = Operation.operators<Logical.Op>()

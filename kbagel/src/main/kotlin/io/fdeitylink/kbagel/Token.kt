@@ -102,7 +102,7 @@ internal class KeywordToken(
         AND, BREAK, CLASS, ELSE,
         FALSE, FOR, FUN, IF, NIL,
         OR, PRINT, RETURN, SUPER,
-        THIS, TRUE, VAR, WHILE;
+        THIS, TRUE, VAR, WHILE, XOR;
 
         val chars = name.toLowerCase()
 
